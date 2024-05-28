@@ -6,6 +6,13 @@ ncol(banche)
 str(banche)
 summary(banche)
 
+# funzione che prende in input una variabile quantitativa e stampa summary + varianza e dev. standared in una riga
+display_summary_and_var <- function(variabile){
+  c(summary(variabile), 
+    var = var(variabile, na.rm = T), 
+    sd = sd(variabile, na.rm = T))
+}
+
 
 # si nota che la prima colonna indica il numero identificativo del cliente
 # quindi non verrà analizzata
@@ -20,13 +27,10 @@ barplot(matrix(prop.table(table(banche$Attrition_Flag))))
 # mentre il 16.1% dei dati riguarda clienti persi / clienti passati
 
 
+
 # Customer_Age
-summary(na.omit(banche$Customer_Age))
-var(banche$Customer_Age)
-sd(banche$Customer_Age)
-
+display_summary_and_var(banche$Customer_Age)
 hist(banche$Customer_Age, freq = F, main = "distribuzione età")
-
 skewness(banche$Customer_Age)
 boxplot(banche$Customer_Age, horizontal = T)
 # la variabile giguardante l'età dei clienti è una variabile quantitativa,
@@ -36,24 +40,22 @@ boxplot(banche$Customer_Age, horizontal = T)
 # infine dal boxplot si evince che 2 clienti hanno come età dei valori outliers
 
 
+
 # Gender
 banche$Gender <- factor(banche$Gender)
 prop.table(table(banche$Gender))
 barplot(prop.table(table(banche$Gender)))
-
 # La variabile Gender è una variabile qualitativa che presenta le seguenti frequenze relative:
 # si osserva che la frequenza delle donne è leggermente maggiore
 
 
 
 # Dependent_count
-summary(na.omit(banche$Dependent_count))
-var(banche$Dependent_count)
-sd(banche$Dependent_count)
-skewness(banche$Dependent_count)
-hist(banche$Dependent_count, freq = T, main = "distribuzione conto")
-# 
-# 
+display_summary_and_var(banche$Dependent_count)
+barplot(prop.table(table(banche$Dependent_count)))
+
+# è una variabile quantitativa discreta, che ha come minimo 0 e come massimo 5
+# la media dei valori è 2.346
 
 
 
