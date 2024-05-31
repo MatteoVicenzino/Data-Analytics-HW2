@@ -4,7 +4,7 @@ calcola_devianza <- function(numerical_var, categorical_var) {
   data <- data.frame(numerical_var, categorical_var)
   
   # Calcoliamo la media generale
-  mean_total <- mean(data$numerical_var)
+  mean_total <- mean(data$numerical_var, na.rm = T)
   
   # Devianza totale
   devianza_totale <- sum((data$numerical_var - mean_total)^2)
@@ -13,9 +13,9 @@ calcola_devianza <- function(numerical_var, categorical_var) {
   devianza_tra_gruppi <- 0
   livelli <- levels(data$categorical_var)
   for (livello in livelli) {
-    gruppo <- data[data$categorical_var == livello,]
+    gruppo <- data[data$categorical_var == livello, ]
     n <- nrow(gruppo)
-    mean_gruppo <- mean(gruppo$numerical_var)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm = T)
     devianza_tra_gruppi <- devianza_tra_gruppi + n * (mean_gruppo - mean_total)^2
   }
   
