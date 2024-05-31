@@ -59,24 +59,28 @@ points(mean(case$GrLivArea), col = 'red')
 
 #numero basement full bathroom
 
+case$BsmtFullBath <- factor(case$BsmtFullBath)
 display_table(case$BsmtFullBath)
 
 #presenta solo i caratteri 0, 1 , 2 e 3. il 59% delle case ha 0, il 40% 1
 
 #numero basement half bathroom
 
+case$BsmtHalfBath <- factor(case$BsmtHalfBath)
 display_table(case$BsmtHalfBath)
 
 #presenta i caratteri 0, 1 e 2, il 94% delle case ha 0, il 5% 1
 
 #numero camere sopra il livello del suolo, non include le camerdel basement.
 
+case$BedroomAbvGr <- factor(case$BedroomAbvGr)
 display_table(case$BedroomAbvGr)
 
 #il 55% delle case ne ha 3. 
 
 #numero di cucine 
 
+case$KitchenAbvGr <- factor(case$KitchenAbvGr)
 display_table(case$KitchenAbvGr)
 
 #il 95% delle case ne ha 1
@@ -106,6 +110,7 @@ display_table(case$Functional)
 
 #fire places
 
+case$Fireplaces <- factor(case$Fireplaces)
 display_table(case$Fireplaces)
 
 #il 47% delle case ha 0, il 44% ha 1
@@ -131,3 +136,10 @@ case$GarageFinish <- factor(replace(case$GarageFinish, is.na(case$MSSubClass), "
 display_table(case$GarageFinish)
 
 #il 43% delle case ha il garage non finito
+
+
+#anno costruzione garage
+
+hist(case$GarageYrBlt, probability = T,breaks= c(5*0:28)+1870,  main = 'anno costruzione garage')
+abline(v = median(case$GarageYrBlt, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$GarageYrBlt, na.rm = T),lwd = 1)
