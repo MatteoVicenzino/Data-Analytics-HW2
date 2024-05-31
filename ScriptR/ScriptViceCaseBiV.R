@@ -97,9 +97,10 @@ ggplot(case, aes(x = as.factor(MasVnrType), y = SalePrice)) + geom_violin()
 
 # MasVnrArea
 cor(case$MasVnrArea, case$SalePrice, use = "complete.obs")
-model <- lm(SalePrice ~ MasVnrArea, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ MasVnrArea, data = subset(case, MasVnrArea != 0), na.action = "na.omit")
 summary(model)
 ggplot(case, aes(x = MasVnrArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, MasVnrArea != 0), aes(x = MasVnrArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 # si nota che la correlazione è di circa 0.48
 # la variabile MasVnrArea quindi  influenza debolmente il prezzo delle case, come si può vedere dal grafico
 
@@ -179,8 +180,10 @@ ggplot(case, aes(x = as.factor(BsmtFinType1), y = SalePrice, fill = as.factor(Bs
 # BsmtFinSF1
 cor(case$BsmtFinSF1, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ BsmtFinSF1, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtFinSF1, data = subset(case, BsmtFinSF1 != 0), na.action = "na.omit")
 summary(model)
 ggplot(case, aes(x = BsmtFinSF1, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm") + xlim(0,2500)
+ggplot(data = subset(case, BsmtFinSF1 != 0), aes(x = BsmtFinSF1, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm") + xlim(0,2500)
 # la correlazione delle due variabili è di 0.39 e come si nota dal grafico la il modello non ha una un'ottima accuratezza 
 # la variabile BsmtFinSF1 quindi, non influenza pesantemente il prezzo delle case
 
@@ -198,8 +201,10 @@ ggplot(case, aes(x = as.factor(BsmtFinType2), y = SalePrice, fill = as.factor(Bs
 # BsmtFinSF2
 cor(case$BsmtFinSF2, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ BsmtFinSF2, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtFinSF2, data = subset(case, BsmtFinSF2 != 0), na.action = "na.omit")
 summary(model)
 ggplot(case, aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, BsmtFinSF2 != 0), aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 # essendo questa variabile la superficie della finitura descritta alla variabile precedente,
 # anche qui non c'è nessuna relazione tra le due variabili, il valore della correlazione è di -0.11% : molto prossima allo zero
 
@@ -208,15 +213,19 @@ ggplot(case, aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(
 # BsmtUnfSF
 cor(case$BsmtUnfSF, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ BsmtUnfSF, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtUnfSF, data = subset(case, BsmtUnfSF != 0), na.action = "na.omit")
 summary(model)
 ggplot(case, aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, BsmtUnfSF != 0), aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 
 
 # TotalBsmtSF
 cor(case$TotalBsmtSF, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ TotalBsmtSF, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ TotalBsmtSF, data = subset(case, TotalBsmtSF != 0), na.action = "na.omit")
 summary(model)
 ggplot(case, aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
+ggplot(data = subset(case, TotalBsmtSF != 0), aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
 
 
 # commentare queste 2
