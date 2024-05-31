@@ -23,7 +23,7 @@ calcola_devianza <- function(numerical_var, categorical_var) {
   devianza_entro_gruppi <- 0
   for (livello in livelli) {
     gruppo <- data[data$categorical_var == livello,]
-    mean_gruppo <- mean(gruppo$numerical_var)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm = T)
     devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2)
   }
   
