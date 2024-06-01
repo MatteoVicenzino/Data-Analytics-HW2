@@ -1,0 +1,260 @@
+
+#### Variabile 'GarageYrBlt'
+
+```{r}
+risultati_cov_cor_GarageYrBlt <- calcolo_cov_cor(case$GarageYrBlt)
+risultati_cov_cor_GarageYrBlt
+cat("Commento: La variabile GarageYrBlt ha una covarianza di", round(risultati_cov_cor_GarageYrBlt["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageYrBlt["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageYrBlt["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageYrBlt e SalePrice. Questo potrebbe suggerire che i garage costruiti più recentemente tendono ad essere associati a case con un prezzo di vendita più alto, forse perché indicano una manutenzione più recente e tecnologie più moderne.\n")
+
+ggplot(case, aes(x = GarageYrBlt, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("GarageYrBlt vs SalePrice")
+```
+
+#### Variabile 'GarageFinish'
+
+```{r}
+risultati_devianza_GarageFinish <- calcola_devianza(case$SalePrice, case$GarageFinish)
+print(risultati_devianza_GarageFinish)
+cat("Commento: La variabile GarageFinish ha una devianza totale di", round(risultati_devianza_GarageFinish$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageFinish$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageFinish$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageFinish$eta2, 4), "indicando che il", round(risultati_devianza_GarageFinish$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageFinish. Un garage finito (o meglio rifinito) potrebbe essere percepito come un segno di qualità e cura della proprietà, contribuendo quindi ad un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageFinish), y = SalePrice)) + geom_boxplot() + ggtitle("GarageFinish vs SalePrice")
+```
+
+#### Variabile 'GarageCars'
+
+```{r}
+risultati_cov_cor_GarageCars <- calcolo_cov_cor(case$GarageCars)
+print(risultati_cov_cor_GarageCars)
+cat("Commento: La variabile GarageCars ha una covarianza di", round(risultati_cov_cor_GarageCars["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageCars["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageCars["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageCars e SalePrice. Questo potrebbe suggerire che case con un maggior numero di garage tendono ad avere un prezzo di vendita più alto, forse perché indicano una maggiore capacità di parcheggio e spazio di stoccaggio.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageCars), y = SalePrice)) + geom_boxplot() + ggtitle("GarageCars vs SalePrice")
+```
+
+#### Variabile 'GarageArea'
+
+```{r}
+risultati_cov_cor_GarageArea <- calcolo_cov_cor(case$GarageArea)
+print(risultati_cov_cor_GarageArea)
+cat("Commento: La variabile GarageArea ha una covarianza di", round(risultati_cov_cor_GarageArea["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageArea["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageArea["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageArea e SalePrice. Questo potrebbe suggerire che case con un'area garage più grande tendono ad avere un prezzo di vendita più alto, forse perché indicano una maggiore capacità di parcheggio e spazio di stoccaggio.\n")
+
+# Plot
+ggplot(case, aes(x = GarageArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("GarageArea vs SalePrice")
+```
+
+#### Variabile 'GarageQual'
+
+```{r}
+risultati_devianza_GarageQual <- calcola_devianza(case$SalePrice, case$GarageQual)
+print(risultati_devianza_GarageQual)
+cat("Commento: La variabile GarageQual ha una devianza totale di", round(risultati_devianza_GarageQual$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageQual$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageQual$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageQual$eta2, 4), "indicando che il", round(risultati_devianza_GarageQual$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageQual. Un garage di qualità superiore potrebbe essere percepito come un segno di qualità e cura della proprietà, contribuendo quindi ad un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageQual), y = SalePrice)) + geom_boxplot() + ggtitle("GarageQual vs SalePrice")
+```
+
+#### Variabile 'GarageCond'
+
+```{r}
+risultati_devianza_GarageCond <- calcola_devianza(case$SalePrice, case$GarageCond)
+print(risultati_devianza_GarageCond)
+cat("Commento: La variabile GarageCond ha una devianza totale di", round(risultati_devianza_GarageCond$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageCond$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageCond$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageCond$eta2, 4), "indicando che il", round(risultati_devianza_GarageCond$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageCond. Una buona condizione del garage è cruciale per la funzionalità e l'estetica della proprietà, influenzando positivamente il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageCond), y = SalePrice)) + geom_boxplot() + ggtitle("GarageCond vs SalePrice")
+```
+
+#### Variabile 'PavedDrive'
+
+```{r}
+risultati_devianza_PavedDrive <- calcola_devianza(case$SalePrice, case$PavedDrive)
+print(risultati_devianza_PavedDrive)
+cat("Commento: La variabile PavedDrive ha una devianza totale di", round(risultati_devianza_PavedDrive$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_PavedDrive$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_PavedDrive$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_PavedDrive$eta2, 4), "indicando che il", round(risultati_devianza_PavedDrive$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da PavedDrive. Un vialetto pavimentato può migliorare l'aspetto estetico della casa e la comodità, influenzando così positivamente il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(PavedDrive), y = SalePrice)) + geom_boxplot() + ggtitle("PavedDrive vs SalePrice")
+```
+
+
+#### Variabile 'WoodDeckSF'
+
+```{r}
+risultati_cov_cor_WoodDeckSF <- calcolo_cov_cor(case$WoodDeckSF)
+print(risultati_cov_cor_WoodDeckSF)
+cat("Commento: La variabile WoodDeckSF ha una covarianza di", round(risultati_cov_cor_WoodDeckSF["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_WoodDeckSF["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_WoodDeckSF["cor"] > 0, "positiva", "negativa"), 
+    "tra WoodDeckSF e SalePrice. La presenza di un'ampia terrazza in legno può essere un fattore attrattivo per gli acquirenti, offrendo spazio all'aperto per il relax e l'intrattenimento, e quindi aumentando il valore della casa.\n")
+
+# Plot
+ggplot(case, aes(x = WoodDeckSF, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("WoodDeckSF vs SalePrice")
+```
+
+#### Variabile 'OpenPorchSF'
+
+```{r}
+risultati_cov_cor_OpenPorchSF <- calcolo_cov_cor(case$OpenPorchSF)
+print(risultati_cov_cor_OpenPorchSF)
+cat("Commento: La variabile OpenPorchSF ha una covarianza di", round(risultati_cov_cor_OpenPorchSF["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_OpenPorchSF["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_OpenPorchSF["cor"] > 0, "positiva", "negativa"), 
+    "tra OpenPorchSF e SalePrice. Gli spazi aperti come le verande possono migliorare la qualità della vita e l'attrattiva estetica della proprietà, contribuendo a un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = OpenPorchSF, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("OpenPorchSF vs SalePrice")
+```
+
+
+#### Variabile 'EnclosedPorch'
+
+```{r}
+risultati_cov_cor_EnclosedPorch <- calcolo_cov_cor(case$EnclosedPorch)
+print(risultati_cov_cor_EnclosedPorch)
+cat("Commento: La variabile EnclosedPorch ha una covarianza di", round(risultati_cov_cor_EnclosedPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_EnclosedPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_EnclosedPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra EnclosedPorch e SalePrice. Una veranda chiusa può aggiungere spazio utilizzabile alla casa e offrire protezione dagli elementi atmosferici, rendendo la proprietà più preziosa.\n")
+
+# Plot
+ggplot(case, aes(x = EnclosedPorch, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("EnclosedPorch vs SalePrice")
+```
+
+#### Variabile 'X3SsnPorch'
+
+```{r}
+risultati_cov_cor_X3SsnPorch <- calcolo_cov_cor(case$`X3SsnPorch`)
+print(risultati_cov_cor_X3SsnPorch)
+cat("Commento: La variabile 3SsnPorch ha una covarianza di", round(risultati_cov_cor_X3SsnPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_X3SsnPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_X3SsnPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra 3SsnPorch e SalePrice. Una veranda a tre stagioni può essere vista come un valore aggiunto, offrendo un'area utilizzabile per gran parte dell'anno e aumentando così il valore della proprietà.\n")
+
+# Plot
+ggplot(case, aes(x = `X3SsnPorch`, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("3SsnPorch vs SalePrice")
+```
+
+#### Variabile 'ScreenPorch'
+
+```{r}
+risultati_cov_cor_ScreenPorch <- calcolo_cov_cor(case$ScreenPorch)
+print(risultati_cov_cor_ScreenPorch)
+cat("Commento: La variabile ScreenPorch ha una covarianza di", round(risultati_cov_cor_ScreenPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_ScreenPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_ScreenPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra ScreenPorch e SalePrice. Una veranda schermata può fornire uno spazio esterno, migliorando la qualità della vita e il valore della casa.\n")
+
+# Plot
+ggplot(case, aes(x = ScreenPorch, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("ScreenPorch vs SalePrice")
+```
+
+#### Variabile 'PoolArea'
+
+```{r}
+risultati_cov_cor_PoolArea <- calcolo_cov_cor(case$PoolArea)
+print(risultati_cov_cor_PoolArea)
+cat("Commento: La variabile PoolArea ha una covarianza di", round(risultati_cov_cor_PoolArea["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_PoolArea["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_PoolArea["cor"] > 0, "positiva", "negativa"), 
+    "tra PoolArea e SalePrice. Una piscina può essere un lusso desiderabile in una proprietà, contribuendo significativamente al prezzo di vendita, anche se questo può variare a seconda della località.\n")
+
+# Plot
+ggplot(case, aes(x = PoolArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("PoolArea vs SalePrice")
+```
+
+#### Variabile 'MiscVal'
+
+```{r}
+risultati_cov_cor_MiscVal <- calcolo_cov_cor(case$MiscVal)
+print(risultati_cov_cor_MiscVal)
+cat("Commento: La variabile MiscVal ha una covarianza di", round(risultati_cov_cor_MiscVal["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_MiscVal["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_MiscVal["cor"] > 0, "positiva", "negativa"), 
+    "tra MiscVal e SalePrice. I valori vari possono rappresentare miglioramenti o caratteristiche aggiuntive della proprietà che non rientrano nelle categorie standard, influenzando così il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = MiscVal, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("MiscVal vs SalePrice")
+```
+
+#### Variabile 'MoSold'
+
+```{r}
+risultati_cov_cor_MoSold <- calcolo_cov_cor(case$MoSold)
+print(risultati_cov_cor_MoSold)
+cat("Commento: La variabile MoSold ha una covarianza di", round(risultati_cov_cor_MoSold["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_MoSold["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_MoSold["cor"] > 0, "positiva", "negativa"), 
+    "tra MoSold e SalePrice. Il mese di vendita può influenzare il prezzo di vendita a causa della stagionalità del mercato immobiliare, con certi mesi che potrebbero avere una domanda più alta e quindi prezzi più alti.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(MoSold), y = SalePrice)) + geom_boxplot() + ggtitle("MoSold vs SalePrice")
+```
+
+#### Variabile 'YrSold'
+
+```{r}
+risultati_cov_cor_YrSold <- calcolo_cov_cor(case$YrSold)
+print(risultati_cov_cor_YrSold)
+cat("Commento: La variabile YrSold ha una covarianza di", round(risultati_cov_cor_YrSold["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_YrSold["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_YrSold["cor"] > 0, "positiva", "negativa"), 
+    "tra YrSold e SalePrice. L'anno di vendita può riflettere le condizioni economiche generali e le tendenze del mercato immobiliare, influenzando i prezzi di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(YrSold), y = SalePrice)) + geom_boxplot() + ggtitle("YrSold vs SalePrice")
+```
+
+#### Variabile 'SaleType'
+
+```{r}
+risultati_devianza_SaleType <- calcola_devianza(case$SalePrice, case$SaleType)
+print(risultati_devianza_SaleType)
+cat("Commento: La variabile SaleType ha una devianza totale di", round(risultati_devianza_SaleType$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_SaleType$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_SaleType$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_SaleType$eta2, 4), "indicando che il", round(risultati_devianza_SaleType$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da SaleType. Il tipo di vendita può influenzare il prezzo di vendita, con vendite all'asta o forzate che potrebbero portare a prezzi più bassi rispetto a vendite tradizionali.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(SaleType), y = SalePrice)) + geom_boxplot() + ggtitle("SaleType vs SalePrice")
+```
+
+#### Variabile 'SaleCondition'
+
+```{r}
+risultati_devianza_SaleCondition <- calcola_devianza(case$SalePrice, case$SaleCondition)
+print(risultati_devianza_SaleCondition)
+cat("Commento: La variabile SaleCondition ha una devianza totale di", round(risultati_devianza_SaleCondition$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_SaleCondition$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_SaleCondition$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_SaleCondition$eta2, 4), "indicando che il", round(risultati_devianza_SaleCondition$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da SaleCondition. La condizione di vendita può influenzare il prezzo di vendita, con vendite come le foreclosures che potrebbero portare a prezzi più bassi rispetto a vendite tradizionali.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(SaleCondition), y = SalePrice)) + geom_boxplot() + ggtitle("SaleCondition vs SalePrice")
+```
+
