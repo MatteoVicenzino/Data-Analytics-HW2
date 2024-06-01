@@ -27,10 +27,10 @@ display_summary_and_var <- function(variabile){
 }
 
 # Funzione per le Variabili Qualitative
-display_table <- function(variabile){
+display_table <- function(variabile, titolo){
   DistAs <- table(variabile)
   DistRe <- prop.table(table(variabile))
-  barplot(prop.table(table(variabile)))
+  barplot(prop.table(table(variabile)), main = titolo)
   print(rbind(DistAs, DistRe))
 }
 ```
@@ -80,16 +80,19 @@ calcola_devianza <- function(numerical_var, categorical_var) {
 
 ```{r}
 # Caricamento del dataset (da togliere)
-banche <- read.csv("C:\\Users\\giova\\Downloads\\credit_card.csv")
+banche <- read.csv("~/Documents/UNI/2_anno_23_24/Analytics/6_HW2/Dati/BankChurners.csv")
 ```
+
 
 #### Variabile `Attrition_Flag`
 
 ```{r}
 banche$Attrition_Flag <- factor(banche$Attrition_Flag)
-display_table(banche$Attrition_Flag)
+display_table(banche$Attrition_Flag, "Attrition_Flag")
 ```
+
 Si nota che l'83.9% dei dati riguarda clienti esistenti della banca mentre il 16.1% dei dati riguarda clienti persi / clienti passati.
+
 
 #### Variabile `Customer Age`
 
@@ -98,7 +101,213 @@ display_summary_and_var(banche$Customer_Age)
 hist(banche$Customer_Age, freq = F, main = "distribuzione età")
 boxplot(banche$Customer_Age, horizontal = T)
 ```
+
 La variabile giguardante l'età dei clienti è una variabile quantitativa, si nota che l'età media del campione è 46.33 e la mediana è 46.00, i valori sono abbastanza vicini infati se si calcola l'indice di asimmetria attraverso la fnuzione skewness() si ottiene un numero prossimo allo zero. Infine dal boxplot si evince che 2 clienti hanno come età dei valori outliers
+
+
+#### Variabile `Gender`
+
+```{r}
+banche$Gender <- factor(banche$Gender)
+display_table(banche$Gender, "Gender")
+```
+
+La variabile Gender è una variabile qualitativa che presenta le seguenti frequenze relative: si osserva che la frequenza delle donne è leggermente maggiore
+
+
+#### Variabile `Dependent_count`
+
+```{r}
+display_summary_and_var(banche$Dependent_count)
+barplot(prop.table(table(banche$Dependent_count)))
+```
+
+E' una variabile quantitativa discreta, che ha come minimo 0 e come massimo 5
+la media dei valori è 2.346
+
+
+#### Variabile `Education_level`
+
+```{r}
+banche$Education_Level <- factor(banche$Education_Level, levels = c("Unknown","Uneducated","High School", "College", "Graduate", "Post-Graduate", "Doctorate") )
+display_table(banche$Education_Level, "Education_level")
+```
+
+La variabile Gender è una variabile qualitativa che presenta le seguenti frequenze relative: si osserva che la frequenza maggiore è quella relativa ai clienti "Graduate", del 30.8% e si osserva inoltre che non si conoscono i dati di circa il 15% del nostro campione
+
+
+#### Variabile `Marital_Status`
+
+```{r}
+banche$Marital_Status <- factor(banche$Marital_Status)
+banche$Marital_Status <- ordered(banche$Marital_Status, levels = c("Single", "Married", "Divorced", "Unknown"))
+display_table(banche$Marital_Status,"Marital_Status")
+```
+
+Variabile Character che indica lo stato di relazione della persona che possiede il conto in banca. Vediamo che le categorie più popolari sono "Merried" e "single"
+
+
+#### Variabile `Income_Category`
+
+```{r}
+banche$Income_Category <- factor(banche$Income_Category)
+banche$Income_Category <- ordered(banche$Income_Category, levels = c("Less than $40K","$40K - $60K","$60K - $80K","$80K - $120K","$120K +","Unknown"))
+display_table(banche$Income_Category, "Income_Category")
+```
+
+Anche se la variabile potrebbe essere vista come una variabile Numerica che rappresenta il reddito diviso in classi, questa ci viene invece fornita come variabile Character che verrà ordinata a mano.
+La "Classe" più comune è "Less than $40K" e la più rara "$120K +".
+
+
+#### Variabile `Card_Category`
+
+```{r}
+banche$Card_Category <- factor(banche$Card_Category)
+banche$Card_Category <- ordered(banche$Card_Category, levels = c("Blue","Silver","Gold","Platinum"))
+display_table(banche$Card_Category, "Card_Category")
+```
+
+E' una variabile Character che indica la categoria di carta del della persona che possiede il conto. Considerando che i "livelli" di una carta di credito si spostano generalmente da bronzo fino a platino si riordiniamo i livelli prima di continuare le osservazioni (nel nostro caso il "Bronzo" corrisponderà al "Blue")
+Le carte rilasciate sono quasi esclusivamente del tipo "Blue".
+
+
+#### Variabile `Months_on_book`
+
+```{r}
+display_summary_and_var(banche$Months_on_book)
+hist(banche$Months_on_book, breaks = c(3*0:20), probability = T)
+curve(dnorm(x,mean(banche$Months_on_book, na.rm = T), sd(banche$Months_on_book, na.rm = T)),add = T)
+abline(v = median(banche$Months_on_book, na.rm = T),lwd = 2, col = "red")
+abline(v = mean(banche$Months_on_book, na.rm = T),lwd = 2, col = "green")
+
+```
+
+Variabile di tipo Quantitativo che indica il numero di mesi che che un cliente ha passato come cliente della Banca
+Vediamo che è presente un picco tra 33 e 36 che va ben sopra la gaussiana costruita con Media e SD della distribuzione.
+Moda e Mediana sono estremamente vicine.
+
+
+#### Variabile `Total_Relationship_Count`
+
+```{r}
+display_summary_and_var(banche$Total_Relationship_Count)
+hist(banche$Total_Relationship_Count, breaks = c(0:7)+0.5,ylim= c(0,0.26), probability = T)
+abline(v = median(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "red")
+abline(v = mean(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "green")
+```
+
+E' una variabile numerica che rappresenta il numero totale di prodotti della banca posseduto dal utente.
+Raramente i clienti possiedono solo una o due carte e si nota che, anche se la moda è 3, sia media che mediana sono vicine al 4.
+
+
+#### Variabile `month_inactive`
+
+```{r}
+banche$Months_Inactive_12_mon <-factor(banche$Months_Inactive_12_mon)
+display_table(banche$Months_Inactive_12_mon, titolo = 'Month inactive 12 month')
+```
+
+Si osserva una maggiore concentrazione di valori in 2 e 3
+presenta solamente valori da 1 a 6 quindi verrà trattata come una variabile categoriale
+
+
+#### Variabile `contacts count 12 month`
+
+```{r}
+banche$Contacts_Count_12_mon <- factor(banche$Contacts_Count_12_mon)
+display_table(banche$Contacts_Count_12_mon, titolo = 'contacts 12 month')
+```
+
+Anche qui si osserva una maggiore concentrazione di valori maggiore in 2 e 3, questa variabile è meno assimetrica della precedente
+presenta solamente valori da 1 a 6 quindi verrà trattata come una variabile categoriale
+
+
+#### Variabile `credit limit`
+
+```{r}
+display_summary_and_var(banche$Credit_Limit)
+hist(banche$Credit_Limit, freq = T, main = "distribuzione credito limite")
+```
+
+Si osserva una forte asimetria nella distribuzione, la media è di circa 8631 mentre la mediana di 4549
+
+
+#### Variabile `total revolving bal`
+
+```{r}
+display_summary_and_var(banche$Total_Revolving_Bal)
+hist(banche$Total_Revolving_Bal, freq = T, main = "Total Revolving Bal")
+boxplot(banche$Total_Revolving_Bal, horizontal = T)
+```
+
+Si osserva che la moda è 0
+
+
+#### Variabile `avg open to buy`
+
+```{r}
+display_summary_and_var(banche$Total_Revolving_Bal)
+hist(banche$Avg_Open_To_Buy ,freq = T, main = "distribuzione avg_open_to_buy")
+```
+
+distribuzione asimetrica concentrata a sinistra
+
+
+#### Variabile `Total_Amt_Chng_Q4_Q1`
+
+```{r}
+display_summary_and_var(banche$Total_Amt_Chng_Q4_Q1)
+hist(banche$Total_Amt_Chng_Q4_Q1, freq = F, main = "Distribuzione Total_Amt_Chng_Q4_Q1")
+boxplot(banche$Total_Amt_Chng_Q4_Q1, horizontal = T)
+```
+
+La variabile Total_Amt_Chng_Q4_Q1 è quantitativa e rappresenta il cambiamento nell'importo totale delle transazioni tra il quarto trimestre e il primo trimestre. La distribuzione ha una skewness positiva, indicando una coda lunga a destra. Questo significa che la maggior parte dei clienti ha avuto cambiamenti minori, con pochi clienti che hanno avuto grandi aumenti nell'importo delle transazioni.
+
+
+#### Variabile `Total_Trans_Amt`
+
+```{r}
+display_summary_and_var(banche$Total_Trans_Amt)
+hist(banche$Total_Trans_Amt, freq = F, main = "Distribuzione Total_Trans_Amt")
+boxplot(banche$Total_Trans_Amt, horizontal = T)
+```
+
+La variabile Total_Trans_Amt è quantitativa e rappresenta l'importo totale delle transazioni. Anche questa variabile ha una skewness positiva, indicando che la maggior parte dei clienti ha un importo totale delle transazioni relativamente basso, con alcuni che hanno importi significativamente più alti.
+
+
+#### Variabile `Total_Trans_Ct`
+
+```{r}
+display_summary_and_var(banche$Total_Trans_Ct)
+hist(banche$Total_Trans_Ct, freq = F, main = "Distribuzione Total_Trans_Ct")
+boxplot(banche$Total_Trans_Ct, horizontal = T)
+```
+
+La variabile Total_Trans_Ct è quantitativa e rappresenta il numero totale delle transazioni. La distribuzione mostra una skewness positiva, indicando che la maggior parte dei clienti effettua un numero relativamente basso di transazioni, mentre pochi clienti effettuano un numero molto alto di transazioni.
+
+
+#### Variabile `Total_Ct_Chng_Q4_Q1`
+
+```{r}
+display_summary_and_var(banche$Total_Ct_Chng_Q4_Q1)
+hist(banche$Total_Ct_Chng_Q4_Q1, freq = F, main = "Distribuzione Total_Ct_Chng_Q4_Q1")
+boxplot(banche$Total_Ct_Chng_Q4_Q1, horizontal = T)
+```
+
+La variabile Total_Ct_Chng_Q4_Q1 rappresenta il cambiamento nel numero totale delle transazioni tra il quarto trimestre e il primo trimestre. Anche questa variabile mostra una skewness positiva, indicando una coda lunga a destra. La maggior parte dei clienti ha avuto cambiamenti minori nel numero di transazioni, con pochi che hanno avuto grandi aumenti.
+
+
+#### Variabile `Avg_Utilization_Ratio`
+
+```{r}
+display_summary_and_var(banche$Avg_Utilization_Ratio)
+hist(banche$Avg_Utilization_Ratio, freq = F, main = "Distribuzione Avg_Utilization_Ratio")
+boxplot(banche$Avg_Utilization_Ratio, horizontal = T)
+```
+
+La variabile Avg_Utilization_Ratio è quantitativa e rappresenta il rapporto medio di utilizzo della carta di credito. La distribuzione ha una skewness positiva, indicando che la maggior parte dei clienti utilizza una piccola porzione del proprio credito disponibile, con pochi che utilizzano una grande porzione.
+
+
 
 ## Dataset - House Prices
 ### Analisi univariata
