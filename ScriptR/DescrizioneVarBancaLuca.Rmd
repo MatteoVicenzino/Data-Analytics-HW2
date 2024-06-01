@@ -226,23 +226,30 @@ pensare ad una correlazione stretta con l'aumento di "SalePrice"
 
 #OverallQual: 
 
-Variabile Quantitativa che descrive la qualità dei materiali e della finitura casa 
-in una scala di interi che va da 1 a 10.
+Variabile Quantitativa che descrive la qualità dei materiali e della finitura della casa 
+in una scala di interi che va da 1 a 10. Può anche esserve vista come una variabile 
+Qualitativa ordinabile divisa in 10 classi.
 Si nota che la maggiorparte delle case si trova della facia che va da "Avarege" (5)
 a "Good" (7). Con media e mediana entrambe vicino a "Above Avarege" (6). La 
 Skewness è infatti bassa a 0.216721.
 ---
--Forte correlazione o alta Devianza "Tra"
--Sapere il voto mi aiuta a dare una previsione sul costo della casa
--
+Per l'analisi bivariata la consideriamo come una Variabile Qualitativa.
+Abbiamo Eta Quadro uguale a 0.6841813, il che denota una prevalenza di devianza "Tra".
+Si vede infatti come all'aumentare del valore di "OverallQual" la variabile "SalePrice"
+salga. Volendo comunques usare la correlazione lineare con questa variabile, vediamo che essa 
+arriva a 0.7909816, ovvero è presente una forte correlazione tra le due variabili.
 
 #OverallCond:
 
--variabile Quantitativa o Qualitativa?
--Cor e Devianza "Tra" sono in ogni caso Basse
--o la retta di regressione è quasi orizzontale o le medie dei gruppi sono tutte vicine alla media totale
--in ogni caso è strano che al migliorarsi delle condizioni dell'edificio il prezzo 
-di vendita non salga
+"OverallCond" è una Variabile Quantitativa che descrive le condizioni in cui si trova l'abitazione
+in una scala di interi che va da 1 a 10. Come "OverallQual", può anche esserve vista come una variabile 
+Qualitativa ordinabile divisa in 10 classi.
+Si vede anche dal grafico che la moda è "5" con più del 50%delle osservazizoni. Si nota che media e mediana 
+non sono veramente vicine, infatti la Skewness è 0.6923552 che, considerato che il range di valori è 1-10,
+non è bassa.
+----
+Dalla Devianza vediamo che quella principale è quella di tipo "Entro", Eta Quadro è infatti basso a 0.1253901.
+Si vede che le medie dei gruppi sono tutte vicine a quella generale con i gruppi "5" e "6" quelli con i valori più estremi.
 
 #YearBuilt:
 
