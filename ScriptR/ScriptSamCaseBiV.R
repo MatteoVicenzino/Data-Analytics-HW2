@@ -69,7 +69,7 @@ ggplot(case, aes(x = LowQualFinSF, y = SalePrice, fill = as.factor(x = LowQualFi
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = F)
 
 
-# la maggior parte dei valori è 0, divido in due gruppi uno in cui il valore è diverso da zero e uno in cui è uguale. Dal grafico e dell'analisi della devianza si osserva che le mediane dei due gruppi soo molto vivine tra loro
+# la maggior parte dei valori è 0, divido in due gruppi uno in cui il valore è diverso da zero e uno in cui è uguale. Dal grafico e dell'analisi della devianza si osserva che le mediane dei due gruppi sono molto vivine tra loro. IL coefficiente eta^2 è quasi zero.
 
 
 # Above grade (ground) living area square feet
@@ -92,7 +92,7 @@ ggplot(case, aes(x = as.factor(x = BsmtFullBath), y = SalePrice, fill = as.facto
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BsmtFullBath))
 
-# la devianza tra i gruppi è bassa. Le mediane dei gruppi sono simili mentra la devianza entro i gruppi, dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore
+# la devianza tra i gruppi è bassa, il coefficiente eta^2 vale circa 0.053. Le mediane dei gruppi sono simili. Dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore.
 
 # Basement half bathrooms
 
@@ -100,21 +100,21 @@ ggplot(case, aes(x = as.factor(x = BsmtHalfBath), y = SalePrice, fill = as.facto
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero half bath')
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BsmtHalfBath))
 
-#  la devianza tra i gruppi è bassa. Le mediane dei gruppi sono simili mentre la devianza entro i gruppi, dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore
+#  la devianza tra i gruppi è bassa, eta^2 è quasi 0. Le mediane dei gruppi sono simili. Dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore
 
 # Full bathrooms above grade
 
 ggplot(case, aes(x = as.factor(x = FullBath), y = SalePrice, fill = as.factor(x = FullBath))) + 
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero full bath')
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$FullBath))
-# la devianza tra i gruppi è alta. Dal grafico si nota che il prezzo è influenzato dal numero di full bath above grade, anche la devianza entro i gruppi è alta. 
+# la devianza tra i gruppi è alta, eta^2 vale circa 0.34. Dal grafico si nota che il prezzo è influenzato dal numero di full bath above grade, anche la devianza entro i gruppi è alta. 
 
 #Half baths above grade
 
 ggplot(case, aes(x = as.factor(x = HalfBath), y = SalePrice, fill = as.factor(x = HalfBath))) + 
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero half bath above grade')
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$HalfBath))
-#  la devianza entro i gruppi è maggiore della devianza tra i gruppi, il coefficiente eta^2 è basso. Le case nel gruppo 1 sono quelle che presentano una maggiore varianza.
+#  la devianza entro i gruppi è maggiore della devianza tra i gruppi, il coefficiente eta^2 è circa 0.0927. Le case nel gruppo 1 sono quelle che presentano una maggiore varianza.
 
 #Bedroom above grade
 
@@ -122,12 +122,12 @@ ggplot(case, aes(x = as.factor(x = BedroomAbvGr), y = SalePrice, fill = as.facto
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BedroomAbvGr))
 
-# Le case con 4 camere da letto sono quelle che presentano la maggiore varianza. La devianza entro i gruppi è maggiore di quella tra i gruppi. il coefficienta eta^2 è basso.
+# Le case con 4 camere da letto sono quelle che presentano la maggiore varianza. La devianza entro i gruppi è maggiore di quella tra i gruppi. il coefficienta eta^2 è circa 0.5866.
 
 #Kitchens above grade
 
 ggplot(case, aes(x = as.factor(x = KitchenAbvGr), y = SalePrice, fill = as.factor(x = KitchenAbvGr))) + 
- geom_boxplot() + guides(fill = FALSE)
+  geom_boxplot() + guides(fill = FALSE)
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$KitchenAbvGr))
 
 # la devianza tra i gruppi è bassa, il coefficiente eta^2 vale circa 0.0199. La correlazione è bassa.
@@ -168,8 +168,7 @@ calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(cas
 ggplot(case, aes(x = as.factor(x = FireplaceQu), y = SalePrice, fill = as.factor(x = FireplaceQu))) + 
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$FireplaceQu))
-
-#Dal grafico si evince una correlazione tra Fireplace quality e il prezzo. 
+ # Il coefficiente eta^2 è circa 0.113, e la devianza tra i gruppi è minore di quella entro i gruppi.
 
 #Garage location
 
@@ -177,7 +176,7 @@ ggplot(case, aes(x = as.factor(x = GarageType), y = SalePrice, fill = as.factor(
   geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$GarageType))
 
-# il coefficiente eta^2 è circa  0.3234, sembra esserci correlazione tra le due variabili. IL gruppo che presenta la maggiore varianza è il gruppo delle case con il garage di tipo Attached , si ricordi che questas il gruppo con la numerosità maggiore. 
+# il coefficiente eta^2 è circa  0.2066, sembra esserci correlazione tra le due variabili. IL gruppo che presenta la maggiore varianza è il gruppo delle case con il garage di tipo Attached , si ricordi che questas il gruppo con la numerosità maggiore. 
 
 #Year garage was built
 
@@ -200,4 +199,3 @@ ggplot(case, aes(x = as.factor(x = GarageFinish), y = SalePrice, fill = as.facto
 calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$GarageFinish))
 
 #il valore di eta^2 è circa 0.3, sembra esserci correlazione tra le variabili. Nel gruppo di case che hanno il garage ultimato si riscontra lamaggiore varianza.
-
