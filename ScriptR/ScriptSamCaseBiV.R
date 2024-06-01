@@ -25,13 +25,10 @@ calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(cas
 
 # superficie primo piano
 
-ggplot(data = case , aes(x=X1stFlrSF, y=SalePrice)) +
-  geom_point(shape=1) 
-calcolo_cov_cor(case$X1stFlrSF)
 
+calcolo_cov_cor(case$X1stFlrSF)
 lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
 summary(lmodel)
-
 ggplot(data = case , aes(x=log(X1stFlrSF), y=log(SalePrice))) +
   geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
 
@@ -39,27 +36,17 @@ ggplot(data = case , aes(x=log(X1stFlrSF), y=log(SalePrice))) +
 # osserviamo un valore di R^2 di circa 0.366.
 
 # superficie secondo piano
-ggplot(data = case , aes(x=X2ndFlrSF, y=SalePrice)) +
-  geom_point(shape=1) 
-
-ggplot(data = subset(case, X2ndFlrSF != 0) , aes(x=X2ndFlrSF, y=SalePrice)) +
-  geom_point(shape=1)
-
+ 
 calcolo_cov_cor(case$X2ndFlrSF)
-
 lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
 summary(lmodel)
-
-
 lmodel_case_con_2_piano <- lm(data = subset(case, X2ndFlrSF != 0), formula = (X2ndFlrSF~SalePrice))
 summary(lmodel_case_con_2_piano)
 
 ggplot(data = subset(case, X2ndFlrSF != 0) , aes(x=log(X2ndFlrSF), y=log(SalePrice))) +
   geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
 
-# osserviamo che vi è un discreto numero di case che non ha un secondo piano, plottando i punti vi è una concertazione di punti nell'ascissa
-# 0. Facendo il modello di regresione lineare sia sul set completo che sul subset senza gli zeri si not ache in quest'ultimo il valore di R^2 aumenta  
-# quasi del 10%. 
+# osserviamo che vi è un discreto numero di case che non ha un secondo piano, plottando i punti vi è una concertazione di punti nell'ascissa 0. Facendo il modello di regresione lineare sia sul set completo che sul subset senza gli zeri si not ache in quest'ultimo il valore di R^2 aumenta quasi del 10%. 
 
 # lowqualityfinsf
 
@@ -74,13 +61,10 @@ ggplot(case, aes(x = LowQualFinSF, y = SalePrice, fill = as.factor(x = LowQualFi
 
 # Above grade (ground) living area square feet
 
-ggplot(data = case , aes(x=GrLivArea, y=SalePrice)) +
-  geom_point(shape=1) 
-calcolo_cov_cor(case$GrLivArea)
 
+calcolo_cov_cor(case$GrLivArea)
 lmodel <- lm(data = case, formula = (GrLivArea~SalePrice))
 summary(lmodel)
-
 ggplot(data = case , aes(x=log(GrLivArea), y=log(SalePrice))) +
   geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
 
@@ -180,13 +164,9 @@ calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(cas
 
 #Year garage was built
 
-ggplot(data = case , aes(x=GarageYrBlt, y=SalePrice)) +
-  geom_point(shape=1) 
 calcolo_cov_cor(case$X1stFlrSF)
-
 lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
 summary(lmodel)
-
 ggplot(data = case , aes(x=log(X1stFlrSF), y=log(SalePrice))) +
   geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
 
