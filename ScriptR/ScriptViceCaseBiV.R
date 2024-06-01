@@ -30,8 +30,8 @@ calcola_devianza <- function(numerical_var, categorical_var) {
   devianza_entro_gruppi <- 0
   for (livello in livelli) {
     gruppo <- data[data$categorical_var == livello,]
-    mean_gruppo <- mean(gruppo$numerical_var)
-    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm=T)
+    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2, na.rm=T)
   }
   
   return(list(devianza_totale = devianza_totale, devianza_tra_gruppi = devianza_tra_gruppi, devianza_entro_gruppi = devianza_entro_gruppi, eta2 = (devianza_tra_gruppi/devianza_totale)))
@@ -42,12 +42,7 @@ ggplot(case, aes(x = as.factor(RoofStyle), y = SalePrice)) + geom_violin() + the
 # grafico colorato
 ggplot(case, aes(x = as.factor(MasVnrType), y = SalePrice, fill = as.factor(MasVnrType))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 
-#YearRemodAdd
-calcolo_cov_cor(case$YearRemodAdd)
-model <- lm(SalePrice ~ YearRemodAdd, data = case)
-summary(model)
-ggplot(case, aes(x = log(YearRemodAdd), y = log(SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
-# il coefficiente di correlazione lineare è circa 0.5. Dal modello di regressione lineare osserviamo un valore di R^2 pari a circa 0.26.
+
 
 # RoofStyle
 case$RoofStyle <- factor(case$RoofStyle)
@@ -62,6 +57,7 @@ ggplot(case, aes(x = as.factor(RoofStyle), y = SalePrice)) + geom_boxplot() + th
 # RoofMatl
 case$RoofMatl <- factor(case$RoofMatl, levels = c("Roll", "ClyTile", "CompShg", "Tar&Grv", "Metal", "Membran", "WdShake", "WdShngl"))
 calcola_devianza(case$SalePrice, case$RoofMatl)
+summary(case$RoofMatl)
 ggplot(case, aes(x = as.factor(RoofMatl), y = SalePrice)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ggplot(case, aes(x = as.factor(RoofMatl), y = SalePrice)) + geom_violin() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 # si nota che la devianza within ha un valore molto elevato, dovuta soprattuto alla classa CompShg che ha numerosi valori outlier
@@ -203,11 +199,13 @@ ggplot(case, aes(x = as.factor(BsmtFinType2), y = SalePrice, fill = as.factor(Bs
 # dovuto alla codevianza between molto bassa
 
 
+
 # BsmtFinSF2
 cor(case$BsmtFinSF2, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ BsmtFinSF2, data = case, na.action = "na.omit")
-model <- lm(SalePrice ~ BsmtFinSF2, data = subset(case, BsmtFinSF2 != 0), na.action = "na.omit")
 summary(model)
+model0 <- lm(SalePrice ~ BsmtFinSF2, data = subset(case, BsmtFinSF2 != 0), na.action = "na.omit")
+summary(model0)
 ggplot(case, aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 ggplot(data = subset(case, BsmtFinSF2 != 0), aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 # essendo questa variabile la superficie della finitura descritta alla variabile precedente,
@@ -218,21 +216,46 @@ ggplot(data = subset(case, BsmtFinSF2 != 0), aes(x = BsmtFinSF2, y = SalePrice),
 # BsmtUnfSF
 cor(case$BsmtUnfSF, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ BsmtUnfSF, data = case, na.action = "na.omit")
-model <- lm(SalePrice ~ BsmtUnfSF, data = subset(case, BsmtUnfSF != 0), na.action = "na.omit")
 summary(model)
+model0 <- lm(SalePrice ~ BsmtUnfSF, data = subset(case, BsmtUnfSF != 0), na.action = "na.omit")
+summary(model0)
 ggplot(case, aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
 ggplot(data = subset(case, BsmtUnfSF != 0), aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+# Non si nota una forte correlazione tra la variabile Superficie di seminterrato incompleto e il prezzo dell'abitazione
+# la correlazione è del 0.21448 e il valore di R^2 è 0.045
+# anche escludendo tutti i valori che hanno superficie di seminterrato incompleto pari a zero
+# si nota che il valore di R^2 rimane basso
+
 
 
 # TotalBsmtSF
+
 cor(case$TotalBsmtSF, case$SalePrice, use = "complete.obs")
 model <- lm(SalePrice ~ TotalBsmtSF, data = case, na.action = "na.omit")
-model <- lm(SalePrice ~ TotalBsmtSF, data = subset(case, TotalBsmtSF != 0), na.action = "na.omit")
 summary(model)
+model0 <- lm(SalePrice ~ TotalBsmtSF, data = subset(case, TotalBsmtSF != 0), na.action = "na.omit")
+summary(model0)
 ggplot(case, aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
 ggplot(data = subset(case, TotalBsmtSF != 0), aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
+# la dipendenza tra la variabile Superficie del seminterrato e la variabile prezzo è evidente
+# il valore della correlazione è di 0.6135806 e dal grafico si nota come all'aumentare della superficie il valore del prezzo tende ad essere più alto
 
 
-# commentare queste 2
-# fare le ultime 2
-# daje roma daje
+# Heating
+case$Heating <- factor(case$Heating)
+calcola_devianza(case$SalePrice, case$Heating)
+ggplot(case, aes(x = as.factor(Heating), y = SalePrice, fill = as.factor(Heating))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+# la variabile Heating ha una bassa influenza sulla variabile SalePrice 
+# la devianza between ha un valore piuttosto basso infatti le medie dei vari gruppo sono all'incirca alla stessa altezza
+# si nota poi la presenza di numerosi valori outlier nella categoria GasA
+
+
+
+# HeatingQC
+case$HeatingQC <- factor(case$HeatingQC, levels = c("Po","Fa","TA","Gd","Ex"))
+calcola_devianza(case$SalePrice, case$HeatingQC)
+ggplot(case, aes(x = as.factor(HeatingQC), y = SalePrice, fill = as.factor(HeatingQC))) + geom_violin() + geom_boxplot(width=0.4, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+# la qualità dell'impianto di riscaldamento è una variabile che influenza il prezzo di vendita dell'abitazione
+# si nota che la categoria Eccellente contiene le case con il prezzo più alto
+
+
