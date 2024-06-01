@@ -20,7 +20,7 @@ solo 4 osservazioni totali (<0.3%).
 ---
 Visto che stiamo lavorando con la variabile "SalePrice" come target avremo in generale 
 un valore molto alto per la devianza. La devianza totale è infatti 9.207911e+12
-che in questo caso vediamo essere principalmente Devianza "Entro". Eta Quadro è infatti 0.246
+che in questo caso vediamo essere principalmente Devianza "Within". Eta Quadro è infatti 0.246
 il che mi conferma che la variazione delle medie tra i gruppi è meno marcata della
 variazione dei valori nei gruppi stessi. Il grafico ci mostra infatti che tutte
 le medie dei gruppi sono vicine alla media generale mentre classi come la "60" e
@@ -35,7 +35,7 @@ La variabile non è distribuita uniformemente con "RL" (Residenziale a bassa den
 che comprende il 78.73% delle osservazioni totali. La classe meno presente è "C" (Commerciale)
 che viene vista sole 10 volte (<0.7%).
 ---
-In relazione a "SalePrice" abbiamo quasi esclusivamente devianza "Entro", Eta Quadro 
+In relazione a "SalePrice" abbiamo quasi esclusivamente devianza "Within", Eta Quadro 
 è infatti basso. Questo perché le medie dei gruppi sono tutte vicine a quella generale
 e per via del fatto che i valori estremi di "RL" incidono molto sul calcolo della 
 devianza essendo esso il gruppo più comune.
@@ -85,8 +85,8 @@ Sono presenti solo due tipi di Strada di accesso e il 99.59% delle osservazioni
 è del tipo "Pave".
 ---
 Visto che il tipo "Grvl" corrisponde a sole 6 osservazioni, questo pesa molto poco
-sulla devianza che infatti è quasi solamente composta di devianza "Entro".
-L'indice Eta Quadro è infatti uguale a 0.001683915 (la devianza "tra" è inferiore 
+sulla devianza che infatti è quasi solamente composta di devianza "Within".
+L'indice Eta Quadro è infatti uguale a 0.001683915 (la devianza "Between" è inferiore 
 allo 0.2% di quella totale). 
 
 #Alley:
@@ -96,7 +96,7 @@ Vediamo che il 93.77% delle abitazioni non presenta un vicolo di accesso mentre 
 restanti lo hanno o pavimentato o in ghiaia.
 ---
 Come per la variabile precedente, abbiamo un gruppo drasticamente più numeroso rispetto
-gli altri. La devianza è quindi principalmente composta dalla devianza "Entro" ed
+gli altri. La devianza è quindi principalmente composta dalla devianza "Within" ed
 Eta Quadro è infatti 0.02040754. Si nota che tutti i valori più elevati di 
 "SalePrice" si trovano all'interno del gruppo "Non Presente".
 
@@ -108,8 +108,8 @@ Variabile Qualitativa che descrive la forma generale della proprietà. Sono pres
 La forma più comune è quella "Regolare" che viene osservata più spesso delle tre forme 
 Irregolari combinate.
 ---
-Anche in questo caso la devianza "Tra" è decisamente inferiore rispetto alla "Entro".
-Eta quadro e infatti 0.07637571. In questo caso il valore basso della deviazione "Tra" è 
+Anche in questo caso la devianza "Between" è decisamente inferiore rispetto alla "Within".
+Eta quadro e infatti 0.07637571. In questo caso il valore basso della devianza "Between" è 
 dovuto al fatto che i 4 gruppi possiedono tutti medie molto vicine a quella generale.
 
 #LandContour:
@@ -121,7 +121,7 @@ Questo è un alto caso in cui una di queste categorie comprende un numero estrem
 elevato di osservazioni rispetto alle altre. "Lvl", ovvero "a livello con il terreno",
 comprende quasi il 90% delle proprietà osservate.
 ---
-La devianza "Tra" è ancora molto bassa con Eta quadro uguale 0.02579409. Anche se
+La devianza "Between" è ancora molto bassa con Eta quadro uguale 0.02579409. Anche se
 il gruppo "Lvl" non comprendesse 90% delle osservazioni, tutte le medie dei gruppi sono 
 molto vicine a quella generale. I gruppi hanno range di valori simili fatta eccezione 
 di "Lvl" che possiede anche quelli più estremi.
@@ -132,7 +132,7 @@ Variabile qualitativa che descrive le utenze domestiche presenti nella propriet�
 Dei 4 valori della variabile possibili sono solo presenti "AllPub" e "NoSeWa". 
 "NoSeWa" è stata inoltre osservata solo una volta (<0.1%)
 ---
-Il valore della devianza "Tra" è estremamente minore di quella "Entro" ed infatti
+Il valore della devianza "Between" è estremamente minore di quella "Within" ed infatti
 Eta Quadro è uguale a solo 0.0002048991. L'unico valore del gruppo NoSeWa è inoltre
 molto vicino alla media generale.
 
@@ -151,7 +151,7 @@ Variabile Qualitativa che descrive la pendenza del terreno su cui è costruita l
 proprietà dividendola in 3 possibili valori dal Gentile ("Gtl") al Severo ("Sev").
 Il valore più visto è "Gtl" con il 94.65% delle osservazioni.
 ---
-Come in molti casi precedenti la devianza "Entro" è estremamente alta essendo 
+Come in molti casi precedenti la devianza "Within" è estremamente alta essendo 
 il gruppo "Gtl" disproporzionalmente numeroso. Inoltre, anche le medie di "Mod" e 
 "Sev" sono vicine alla media generale. I valori più alti della variabile prezzo 
 sono presenti nel gruppo "Gtl"
@@ -163,7 +163,7 @@ In questo caso abbiamo 25 possibili valori per questa variabile con
 NAmes il più frequente a 15.43% delle osservazioni e Blueste il meno a sole 2 
 ossecrazioni (<0.2%).
 ---
-In questo caso Eta Quadro è uguale a 0.545575 e infatti la devianza di tipo "Tra"
+In questo caso Eta Quadro è uguale a 0.545575 e infatti la devianza di tipo "Between"
 è quella prevalente. Si può vedere, infatti, che ci sono molti gruppi la cui media 
 è decisamente distante da quella generale. Con questa variabile in particolare, il
 sapere a che gruppo appartiene una certa abitazione può aiutarci a prevedere quale
@@ -181,7 +181,7 @@ Il valore più comune è "Norm" con l'86.3% dei dati osservati.
 Eta Quadro è molto basso in questo caso, infatti il gruppo "Norm" influisce 
 sproporzionalmente di più sulla devianza rispetto gli altri. Tutti i gruppi hanno
 comunque una media molto vicina a quella generale, il che contribuisce anche 
-questo a tenere bassa da devianza "Tra" e quindi anche Eta Quadro.
+questo a tenere bassa da devianza "Between" e quindi anche Eta Quadro.
 
 #Condition2:
 
@@ -203,7 +203,7 @@ Variabile Qualitativa che descrive che tipo di abitazione è quella in vendita.
 Il gruppo più comune è quello delle abitazioni da Singola Famiglia ("1Fam") con
 l'83.56% delle osservazioni totali
 ---
-Eta Quadro è 0.03453403, infatti la devianza "Entro" è quella prevalente. Vediamo
+Eta Quadro è 0.03453403, infatti la devianza "Within" è quella prevalente. Vediamo
 che le medie di tutti i gruppi sono vicine a quella generale e che l'unico gruppo
 con valori che si discostano tanto dalla media è "1Fam"
 
@@ -229,7 +229,7 @@ a "Good" (7). Con media e mediana entrambe vicino a "Above Avarege" (6). La
 Skewness è infatti bassa a 0.216721.
 ---
 Per l'analisi bivariata la consideriamo come una Variabile Qualitativa.
-Abbiamo Eta Quadro uguale a 0.6841813, il che denota una prevalenza di devianza "Tra".
+Abbiamo Eta Quadro uguale a 0.6841813, il che denota una prevalenza di devianza "Between".
 Si vede infatti come all'aumentare del valore di "OverallQual" la variabile "SalePrice"
 salga. Volendo comunque usare la correlazione lineare con questa variabile, vediamo che essa 
 arriva a 0.7909816, ovvero è presente una forte correlazione tra le due variabili.
@@ -243,7 +243,7 @@ Si vede anche dal grafico che la moda è "5" con più del 50%delle osservazioni.
 non sono veramente vicine, infatti la Skewness è 0.6923552 che, considerato che il range di valori è 1-10,
 non è bassa.
 ----
-Dalla Devianza vediamo che quella principale è quella di tipo "Entro", Eta Quadro è infatti basso a 0.1253901.
+Dalla Devianza vediamo che quella principale è quella di tipo "Within", Eta Quadro è infatti basso a 0.1253901.
 Si vede che le medie dei gruppi sono tutte vicine a quella generale con i gruppi "5" e "6" quelli con i valori più estremi.
 
 #YearBuilt:
