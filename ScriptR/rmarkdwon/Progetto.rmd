@@ -1,0 +1,105 @@
+---
+title: "hw2"
+output: word_document
+date: "2024-06-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Librerie necessarie
+```{r}
+library(moments)
+library(ggplot2)
+library(dplyr)
+```
+
+## Funzioni usate nel progetto
+### Funzioni per Analisi Univariata
+
+```{r}
+# Funzione per le Variabili Quantitative
+display_summary_and_var <- function(variabile){
+  c(summary(variabile), 
+  var = var(variabile, na.rm = T), 
+  sd = sd(variabile, na.rm = T),
+  sk = skewness(variabile, na.rm = T))
+}
+
+# Funzione per le Variabili Qualitative
+display_table <- function(variabile){
+  DistAs <- table(variabile)
+  DistRe <- prop.table(table(variabile))
+  barplot(prop.table(table(variabile)))
+  print(rbind(DistAs, DistRe))
+}
+```
+
+### Funzioni per Analisi Bivariata
+
+```{r}
+# Funzione per le Variabili Quantitative
+calcolo_cov_cor <- function (variabile_numerica){
+  c(cov = cov(variabile_numerica, case$SalePrice), cor = cor(variabile_numerica, case$SalePrice))}
+
+# Funzione per le Variabili Qualitative
+calcola_devianza <- function(numerical_var, categorical_var) {
+  # Dataframe temporaneo d'appoggio
+  data <- data.frame(numerical_var, categorical_var)
+  
+  # Media generale
+  mean_total <- mean(data$numerical_var, na.rm = T)
+  
+  # Devianza totale
+  devianza_totale <- sum((data$numerical_var - mean_total)^2)
+  
+  # Calcolo della devianza between
+  devianza_tra_gruppi <- 0
+  livelli <- levels(data$categorical_var)
+  for (livello in livelli) {
+    gruppo <- data[data$categorical_var == livello, ]
+    n <- nrow(gruppo)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm = T)
+    devianza_tra_gruppi <- devianza_tra_gruppi + n * (mean_gruppo - mean_total)^2
+  }
+  
+  # Devianza within
+  devianza_entro_gruppi <- 0
+  for (livello in livelli) {
+    gruppo <- data[data$categorical_var == livello,]
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm=T)
+    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2, na.rm=T)
+  }
+  
+  return(list(devianza_totale = devianza_totale, devianza_tra_gruppi = devianza_tra_gruppi, devianza_entro_gruppi = devianza_entro_gruppi, eta2 = (devianza_tra_gruppi/devianza_totale)))
+}
+```
+
+## Dataset - Credit card customers
+### Analisi univariata
+
+```{r}
+# Caricamento del dataset (da togliere)
+banche <- read.csv("C:\\Users\\giova\\Downloads\\credit_card.csv")
+```
+
+#### Variabile `Attrition_Flag`
+
+```{r}
+banche$Attrition_Flag <- factor(banche$Attrition_Flag)
+display_table(banche$Attrition_Flag)
+```
+Si nota che l'83.9% dei dati riguarda clienti esistenti della banca mentre il 16.1% dei dati riguarda clienti persi / clienti passati.
+
+#### Variabile `Customer Age`
+
+```{r}
+display_summary_and_var(banche$Customer_Age)
+hist(banche$Customer_Age, freq = F, main = "distribuzione età")
+boxplot(banche$Customer_Age, horizontal = T)
+```
+La variabile giguardante l'età dei clienti è una variabile quantitativa, si nota che l'età media del campione è 46.33 e la mediana è 46.00, i valori sono abbastanza vicini infati se si calcola l'indice di asimmetria attraverso la fnuzione skewness() si ottiene un numero prossimo allo zero. Infine dal boxplot si evince che 2 clienti hanno come età dei valori outliers
+
+## Dataset - House Prices
+### Analisi univariata
+### Analisi bivariata
