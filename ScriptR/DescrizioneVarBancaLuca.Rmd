@@ -1,0 +1,275 @@
+---
+title: "Analisi Variabili Casa"
+---
+
+#!!!!!NON FINITO!!!!!
+-Manca completare #OverallCond e #OverallQual
+-Prova a scrivere meglio Condition2
+-Forse mettere un commento tipo "sapendo il calore della variabile x, non posso
+ fare previsioni sulla variabile y"
+
+#ID:
+
+Mi indica semplicemente l'id identificativo delle case che va da 1 a 1460.
+
+#MSSubClass:
+
+Una Variabile Qualitativa che descrive il tipo di abitazione della proprietà in vendita.
+Questi tipi di abitazione sono in totale 16 e vengono indicati, per brevità, usando 
+dei numeri. I numeri delle classi non possono essere qiundi usati per calcolare medie
+o mediane.
+
+La variabile non è ben distribuita, infatti solo le classi "20" e "60" comprendono
+il 57.20% delle osservazioni totali. La classe meno presente è invece "40" con 
+solo 4 osservazioni totali (<0.3%)
+---
+Visto che stiamo lavorando con la variabile "SalePrice" come targhet avremo in generale 
+un valore molto alto per la devianza. La devianza totale è infatti 9.207911e+12
+che vediamo essere principalmente Devianza "Entro". Eta Quadro è infatti 0.246
+il che mi conferma che la variazione delle medie tra i gruppi è meno marcata della
+variazione dei valori nei gruppi stessi. Il grafico ci mostra infatti che tutte
+le medie dei gruppi sono vicine alla media generale mentre classi come la "60" e
+la "20" contengono anche valori di "SalePrice" decisamente elevati.
+
+#MSZoning:
+
+Una Variabile Quantitativa che indica il tipo di classificazione della proprietà in vendita.
+Sono presenti un totale di 5 diversi tipi indicati con una sigla di al più 2 lettere.
+
+La variabile non è distribuita uniformemente con "RL" (Residenziale a bassa densità) 
+che comprende il 78.73% delle osservazioni totali. La classe meno presente è "C" (Commerciale)
+che viene vista sole 10 volte (<0.7%)
+---
+In relazione a "SalePrice" abbiamo quasi esclusivamente devianza "Entro", Eta Quadro 
+è infatti basso. Questo perchè le medie dei gruppi sono tutte vicine a quella generale
+e per via del fatto che i valori estremi di "RL" incidono molto sul calcolo della 
+devianza essendo esso il gruppo più comune.
+Vediamo che il gruppo "C" è quello con la media dei prezzi più bassa e che nessuno
+di essi supera la media generale. 
+
+#LotFrontage: 
+
+Variabile Quantitatica che salva la quantità di strada a contatto con la proprietà.
+Sono presenti in questo caso 259 valori mancanti.
+I valori di essa vanno da un minimo di 21 ad un massimo di 313. Con questi ultimi 
+che sono valori estremi per questa variabile essendo ogni altro valore assunto da essa 
+minore di 200.
+
+Media e Mediana sono molto vicine, entrambe a circa 70. Si nota infatti che la 
+Skewness è in questo caso molto bassa a 2.1 . Dal grafico vediamo che il picco di 
+valori si trova nel range 55-80, che contiene sia il primo che terzo Quantile.
+---
+Con target la variabile "SalePrice" vediamo che il coefficente di correlazione
+è 0.3517991, vediamo quindi una correlazione bassa, ma comunque presente, tra le 
+due variabili.
+R Quadro è invece molto basso e infatti vediamo una dispersione molto ampia dei punti.
+Anche rimuovendo i valori più estremi la correlazione cambia poco.
+
+#LotArea: 
+
+Variabile Quantitativa che indica l'area della proprietà. Ha un range di valori molto alto dovuto principalmente alla fresenza di valori estremi 
+che arrivano ad un massimo di 2.152450e+05. 
+
+La granparte delle osservazioni rimane sotto i 25000 metri quadrati con un alta concentrazione
+tra 7500 e 11600. Media e mediana molto vicine tra loro e skewness, infatti, molto 
+bassa soprattutto rispetto ai valori che assume "LotArea". Si nota che i valori 
+estremi che va variabile assume sono riflessi in una varianza e deviazione standard elevati.
+----
+La correlazione lineare con "SalePrice" è positiva ma bassa ed R Quadro pure ha un 
+valore molto vicino allo zero. Rimuovendo i valori di "LotArea" maggiori di 100000
+vediamo che la correlazione sale di quasi 0.10 . C'è quindi una correlazione lineare 
+molto più marcata una volta rimossi i 4 dati più estremi. Questa è un osservazione 
+importante perchè, anche se il numero di queste osservazioni non è elevato,
+ci si aspetterebbè che abitazioni con Aree sopra i 100000 metri quadradi fossero 
+estremamente più costose rispetto alle altre.
+
+#Street: 
+
+Variabile Qualitativa che indica il tipo di strda di accesso alla proprietà.
+Sono presenti solo due tipi di Strada di accesso e il 99.59% delle osservazioni
+è del tipo "Pave".
+---
+Visto che il tipo "Grvl" corrisponde a sole 6 osservazioni, questo pesa molto poco
+sulla devianza che infatti è quasi solamente composta di devianza "Entro".
+L'indice Eta Quadro è infatti uguale a 0.001683915 (la devianza "tra" è inferiore 
+allo 0.2% di quella totale). 
+
+#Alley:
+
+Variabile Qualitativa che indica il tipo del vicolo di accesso alla proprietà.
+Vediamo che il 93.77% delle abitazioni non presenta un vicolo di accesso mentre le
+restanti lo hanno o pavimentato o in ghiaia.
+---
+Come per la variabile precedente, abbiamo un gruppo drasticamente più numeroso rispetto
+gli altri. La devianza è quindi principalmente composta dalla devianza "Entro" ed
+Eta Quadro è infatti 0.02040754. Si nota che tutti i valori più elevati di 
+"SalePrice" si trovano all'interno del gruppo "Non Presente"
+
+#LotShape: 
+
+Variabile Qualitativa che descrive la forma generale della proprietà. Sono presenti
+4 tipi di forma che vanno da quella "Regolare" a "IR3", ovvero altamente irregolare.
+
+La forma più comune è quella "Regolare" che viene osservata più spesso delle tre forme 
+Irregolari combinate.
+---
+Anche in questo caso la devianza "Tra" è decisamente inferiore rispetto alla "Entro".
+Eta quadro e infatti 0.07637571. In questo caso il valore basso della deviazione "Tra" è 
+dovuto al fatto che i 4 gruppi possiedono tutti medie molto vicine a quella generale.
+
+#LandContour:
+
+Variabile Qualitativa che descrive i rilievi presenti sulla proprietà dividendoli 
+in 4 possibili categorie.
+
+Questo è un alto caso in cui una di queste categorie comprende un numero estremamente
+elevato di osservazioni rispetto alle altre. "Lvl", ovvero "a livello con il terreno",
+comprende quasi il 90% delle proprietà osservate.
+---
+La devianza "Tra" è ancora molto bassa con Eta quadro uguale 0.02579409. Anche se
+il gruppo "Lvl" non comprendesse 90% delle osservazioni, tutte le medie dei gruppi sono molto vicine a quella generaleù. I gruppi hanno range di valori simili  fatta eccezione 
+di "Lvl" che possiede anche quelli più estremi.
+
+#Utilities:
+
+Variabile qualitativa che descrive le utenze domestiche presenti nella proprietà.         
+Dei 4 valori della variabile possibili sono solo presenti "AllPub" e "NoSeWa". 
+"NoSeWa" è stata inoltre osservata solo una volta (<0.1%)
+---
+Il valore della devianza "Tra" è estremamente minore di quella "Entro" ed infatti
+Eta Quadro è uguale a solo 0.0002048991. L'unico valore del gruppo NoSeWa è inoltre
+molto vicino alla media generale.
+
+#LotConfig: 
+
+Variabile Qualitativa che descrive il tipo della particella catastale.
+"Inside" è il valore più comune della variabile e corrisponde al 72% delle osservazioni
+totali. "FR3", invece, è presente solo 4 volte. 
+---
+Un alto caso in cui il valore di Eta Quadro è estremamente basso. I gruppi hanno 
+infatti medie molto vicine a quella generale e anche range simili.
+
+#LandSlope:
+
+Variabile Qualitativa che descrive la pendenza del terreno su cui è costruita la 
+proprietà dividendola in 3 possibili valori dal Gentile ("Gtl") al Severo ("Sev").
+Il valore più visto è "Gtl" con il 94.65% delle osservazioni.
+---
+Come in molti casi precedenti la devianza "Entro" è estremamante alta essendo 
+il gruppo "Gtl" disproporzionalmente numeroso. Inoltre, anche le medie di "Mod" e 
+"Sev" sono vicine alla media generale. I valori più alti della variabile prezzo 
+sono presenti nel gruppo "Gtl"
+
+#Neighborhood:
+
+Variabile Qualitativa che descrive la locazione della proprietà in Ames city.
+In questo caso abbimo 25 possibili valori per questa variabile con 
+NAmes il più frequente a 15.43% delle osservazioni e Blueste il meno a sole 2 
+ossercazioni (<0.2%).
+---
+In questo caso Eta Quadro è uguale a 0.545575 e infatti la devianza di tipo "Tra"
+è quella prevalente. Si può vedere, infatti, che ci sono molti gruppi la cui media 
+è decisamente distante da quella generale. Con questa variabile in particolare, il
+sapere a che gruppo appartiene una certa abitazione può aiutarci a prevedere quale
+sarà il suo prezzo. Proprietà situate in NoRidge, NridgHt o StoneBr sono, come si
+può vedere dal grafico, molto più care rispetto la media generale mentre quelle
+situate in Blueste, MeadowV, BrDale, NPkVill e IDOTRR sono sotto di essa. Bisogna
+però fare attenzione perchè queste 5 hanno un sample size molto basso.
+
+#Condition1:
+
+Variabile Qualitativa che indica se la proprietà è vicina a uno tra 8 tipi di 
+punti di interesse o se è lontana da tutti essi, questo è il caso "Norm".
+Il valore più comune è "Norm" con l'86.3% dei dati osservati.
+---
+Eta Quadro è molto basso in questo caso, infatti il gruppo "Norm" influisce 
+sproporzionalmente di più sulla devianza rispetto gli altri. Tutti i gruppi hanno
+comunque una media molto vicina a quella generale, il che contribuisce anche 
+questo a tenere bassa da devianza "Tra" e quindi anche Eta Quadro.
+
+#Condition2:
+
+Variabile Qualitativa che indica la vicinanza della abitazione a ulteriori punti 
+di interesse.
+"Norm" rimane il valore della variabile più comune con adesso il 98.97% di tutte 
+le osservazioni mentre gli altri valori ne hanno, in totale, solo 15. 
+Essedo presenti solo 2 varibili che mi indicano la vicinanza a punti di interesse,
+non possiamo sapere se le 15 abitazioni che sono vicine a 2 punti di interesse
+non siano vicine anche a 3 o più di essi.
+---
+Eta Quadro è anche qui molto basso ed essendo tutti i gruppi diversi da "Norm" 
+formati da al 6 proprietà, non abbiamo una sample size abbastanza grande per fare previsioni sul comportamento della variabile "SalePrice" al variare di
+"Condition2".
+
+#BldgType:
+
+Variabile Qualitativa che descrive che tipo di abitazione è quella in vendita.
+Il gruppo più comune è quello delle abitazioni da Singola Famiglia ("1Fam") con
+l'83.56% delle osservazioni totali
+---
+Eta Quadro è 0.03453403, infatti la devianza "Entro" è quella prevalente. Vediamo
+che le medie di tutti i gruppi sono vicine a quella generale e che l'unico gruppo
+con valori che si discostano tanto dalla media è "1Fam"
+
+#HouseStyle:  
+
+Variabile Qualitativa che descrive lo stile o tipo del edificio.
+Vediamo che edifici con mezzi piani sono molto più rari e che gli edifici con 
+meno piani sono più numerosi. La moda è infatti il gruppo "1Story", al 49.72% delle 
+osservazioni totali, seguito da "2Story", al 30.47%. "2.5Fin" e "2.5Unf" sono invece 
+i più rari.
+---
+Eta Quadro, uguale a 0.08631263, è molto basso. Tutte le medie sono infatti molto vicine
+a quella generale anche se la presenza di ulteriori piani ad un edificio farebbe 
+pensare ad una correlazione stretta con l'aumento di "SalePrice"
+
+#OverallQual: 
+
+Variabile Quantitativa che descrive la qualità dei materiali e della finitura casa 
+in una scala di interi che va da 1 a 10.
+Si nota che la maggiorparte delle case si trova della facia che va da "Avarege" (5)
+a "Good" (7). Con media e mediana entrambe vicino a "Above Avarege" (6). La 
+Skewness è infatti bassa a 0.216721.
+---
+-Forte correlazione o alta Devianza "Tra"
+-Sapere il voto mi aiuta a dare una previsione sul costo della casa
+-
+
+#OverallCond:
+
+-variabile Quantitativa o Qualitativa?
+-Cor e Devianza "Tra" sono in ogni caso Basse
+-o la retta di regressione è quasi orizzontale o le medie dei gruppi sono tutte vicine alla media totale
+-in ogni caso è strano che al migliorarsi delle condizioni dell'edificio il prezzo 
+di vendita non salga
+
+#YearBuilt:
+
+Variabile Quantitativa che descrive l'anno in cui le abitazioni sono state costruite.
+Il range va dal 1872 fino il 2010 con una quantità di case costruite maggiore all'avanzare degli anni.
+Si nota che il picco è avvenuto nei primi anni del 2000 e che tra il 1980 e 1990,
+durante la recessione globale, è avvenuto un forte calo nella costruzione di nuovi
+edifici. Questo anche maggiore dei cali avvenuti durante le guerre mondiali.
+Media e Mediana sono vicine mentre la Deviazione Standard e Varianza non sono basse.
+---
+Il coefficente di correlazione in questo caso è uguale a 0.5228973, il che denota 
+una discreta correlazione tra le due variabili. R Quadro ha un valore di 0.2729 che 
+mi indica una dispersione dei punti ampia intorno alla mia retta di reggressione.
+
+
+
+
+
+
+
+---
+title: "Analisi Variabili Banca"
+---
+
+
+
+
+
+
+
+
