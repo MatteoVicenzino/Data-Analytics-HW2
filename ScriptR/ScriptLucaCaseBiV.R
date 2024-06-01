@@ -64,7 +64,7 @@ Frontage <- case[case$LotFrontage < 200,]
 cor(Frontage$LotFrontage, Frontage$SalePrice, use="complete.obs")
 model <- lm(SalePrice ~ LotFrontage, data = Frontage)
 summary(model)
-ggplot(Frontage, aes(x = LotFrontage, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(Frontage, aes(x = LotFrontage, y = SalePrice)) + geom_point(na.rm = T) + geom_smooth(method = "lm", se = FALSE, na.rm = T)
 
 
 #LotArea: 
