@@ -38,18 +38,16 @@ calcola_devianza <- function(numerical_var, categorical_var) {
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#!!!!! DA DECIDERE CHE GRAFICI USARE PER OverallCond E OverallQual
-
 
 #MSSubClass:
   
 calcola_devianza(case$SalePrice, factor(case$MSSubClass))
-ggplot(case, aes(x = factor(MSSubClass), y = SalePrice, fill = factor(MSSubClass))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(MSSubClass), y = SalePrice, fill = factor(MSSubClass))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "MSSubClass")
 
 #MSZoning:
 
 calcola_devianza(case$SalePrice, factor(case$MSZoning))
-ggplot(case, aes(x = factor(MSZoning), y = SalePrice, fill = factor(MSZoning))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(MSZoning), y = SalePrice, fill = factor(MSZoning))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "MSZoning")
 
 
 #LotFrontage: 
@@ -72,7 +70,7 @@ ggplot(Frontage, aes(x = LotFrontage, y = SalePrice)) + geom_point(na.rm = T) + 
 cor(case$LotArea, case$SalePrice, use="complete.obs")
 model <- lm(SalePrice ~ LotArea, data = case)
 summary(model)
-ggplot(case, aes(x = LotArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(case, aes(x = LotArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) 
 
 #LotArea Senza Valori Estremi:
 Area <- case[case$LotArea < 100000,]
@@ -84,76 +82,74 @@ ggplot(Area, aes(x = LotArea, y = SalePrice)) + geom_point() + geom_smooth(metho
 #Street: 
 
 calcola_devianza(case$SalePrice, factor(case$Street))
-ggplot(case, aes(x = factor(Street), y = SalePrice, fill = factor(Street))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(Street), y = SalePrice, fill = factor(Street))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Street")
 
 #Alley:   
 
 Alley_F <- factor(replace(caseL$Alley, is.na(caseL$Alley), "Non Presente"))
 calcola_devianza(case$SalePrice, Alley_F)
-ggplot(case, aes(x = Alley_F, y = SalePrice, fill = Alley_F)) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = Alley_F, y = SalePrice, fill = Alley_F)) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Alley")
 
 #LotShape: 
 
 calcola_devianza(case$SalePrice, factor(case$LotShape))
-ggplot(case, aes(x = ordered(factor(LotShape),levels = c("Reg","IR1","IR2","IR3")), y = SalePrice, fill = factor(LotShape))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = ordered(factor(LotShape),levels = c("Reg","IR1","IR2","IR3")), y = SalePrice, fill = factor(LotShape))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LotShape")
 
 #LandContour:
 
 calcola_devianza(case$SalePrice, factor(case$LandContour))
-ggplot(case, aes(x = ordered(factor(LandContour),levels = c("Low","Lvl","Bnk","HLS")), y = SalePrice, fill = factor(LandContour))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = ordered(factor(LandContour),levels = c("Low","Lvl","Bnk","HLS")), y = SalePrice, fill = factor(LandContour))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LandContour")
 
 #Utilities:
 
 calcola_devianza(case$SalePrice, factor(case$Utilities))
-ggplot(case, aes(x = factor(Utilities), y = SalePrice, fill = factor(Utilities))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(Utilities), y = SalePrice, fill = factor(Utilities))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Utilities")
 
 #LotConfig: 
 
 calcola_devianza(case$SalePrice, factor(case$LotConfig))
-ggplot(case, aes(x = ordered(factor(LotConfig), levels = c("Inside","Corner","CulDSac","FR2","FR3")), y = SalePrice, fill = factor(LotConfig))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
-
+ggplot(case, aes(x = ordered(factor(LotConfig), levels = c("Inside","Corner","CulDSac","FR2","FR3")), y = SalePrice, fill = factor(LotConfig))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LotConfig")
 
 #LandSlope:
 
 calcola_devianza(case$SalePrice, factor(case$LandSlope))
-ggplot(case, aes(x = factor(LandSlope), y = SalePrice, fill = factor(LandSlope))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(LandSlope), y = SalePrice, fill = factor(LandSlope))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LandSlope")
 
 #Neighborhood:
 
 calcola_devianza(case$SalePrice, factor(case$Neighborhood))
-ggplot(case, aes(x = factor(Neighborhood), y = SalePrice, fill = factor(Neighborhood))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
-
+ggplot(case, aes(x = factor(Neighborhood), y = SalePrice, fill = factor(Neighborhood))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Neighborhood")
 
 #Condition1:
 
 calcola_devianza(case$SalePrice, factor(case$Condition1))
-ggplot(case, aes(x = factor(Condition1), y = SalePrice, fill = factor(Condition1))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(Condition1), y = SalePrice, fill = factor(Condition1))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Condition1")
 
 #Condition2:
 
 calcola_devianza(case$SalePrice, factor(case$Condition2))
-ggplot(case, aes(x = factor(Condition2), y = SalePrice, fill = factor(Condition2))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(Condition2), y = SalePrice, fill = factor(Condition2))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Condition2")
 
 
 #BldgType:
 
 calcola_devianza(case$SalePrice, factor(case$BldgType))
-ggplot(case, aes(x = factor(BldgType), y = SalePrice, fill = factor(BldgType))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(BldgType), y = SalePrice, fill = factor(BldgType))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "BldgType")
 
 #HouseStyle:  
 
 calcola_devianza(case$SalePrice, factor(case$HouseStyle))
-ggplot(case, aes(x = ordered(factor(HouseStyle), levels = c("1Story","1.5Fin","1.5Unf","2Story","2.5Fin","2.5Unf","SFoyer","SLvl")), y = SalePrice, fill = factor(HouseStyle))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = ordered(factor(HouseStyle), levels = c("1Story","1.5Fin","1.5Unf","2Story","2.5Fin","2.5Unf","SFoyer","SLvl")), y = SalePrice, fill = factor(HouseStyle))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "HouseStyle")
 
 #OverallQual: 
 
 calcola_devianza(case$SalePrice, factor(case$OverallQual))
-ggplot(case, aes(x = factor(OverallQual), y = SalePrice, fill = factor(OverallQual))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(OverallQual), y = SalePrice, fill = factor(OverallQual))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "OverallQual")
 
 #OverallCond:
 
 calcola_devianza(case$SalePrice, factor(case$OverallCond))
-ggplot(case, aes(x = factor(OverallCond), y = SalePrice, fill = factor(OverallCond))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
+ggplot(case, aes(x = factor(OverallCond), y = SalePrice, fill = factor(OverallCond))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "OverallCond")
 
 #YearBuilt:
 
