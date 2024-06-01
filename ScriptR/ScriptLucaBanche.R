@@ -1,4 +1,5 @@
-library(moments)
+###   FINITO   ###
+
 
 banche <- read.csv("BankChurners.csv", header=TRUE)
 
@@ -24,9 +25,9 @@ display_table <- function(variabile){
 #                persona che possiede il conto in banca.
 #                Vediamo che le categorie più popolari sono "Merried" e "single"
 
-Marital_Status_F <- factor(banche$Marital_Status)
-Marital_Status_F <- ordered(Marital_Status_F, levels = c("Single", "Married", "Divorced", "Unknown"))
-display_table(Marital_Status_F)
+banche$Marital_Status <- factor(banche$Marital_Status)
+banche$Marital_Status <- ordered(banche$Marital_Status, levels = c("Single", "Married", "Divorced", "Unknown"))
+display_table(banche$Marital_Status,"Marital_Status")
 
 
 #Income_Category: anche se la variabile potrebbe essere vista come una variabile
@@ -36,9 +37,9 @@ display_table(Marital_Status_F)
 #                 La "Classe" più comune è "Less than $40K" e la più rara 
 #                 "$120K +".
 
-Income_Category_F <- factor(banche$Income_Category)
-Income_Category_F <- ordered(Income_Category_F, levels = c("Less than $40K","$40K - $60K","$60K - $80K","$80K - $120K","$120K +","Unknown"))
-display_table(Income_Category_F)
+banche$Income_Category <- factor(banche$Income_Category)
+banche$Income_Category <- ordered(banche$Income_Category, levels = c("Less than $40K","$40K - $60K","$60K - $80K","$80K - $120K","$120K +","Unknown"))
+display_table(banche$Income_Category, "Income_Category")
 
 
 #Card_Category: è una variabile Character che indica la categoria di carta del
@@ -48,9 +49,9 @@ display_table(Income_Category_F)
 #               osservazioni (nel nostro caso il "Bronzo" corrisponderà al "Blue")
 #               Le carte rilasciate sono quasi esclusivamente del tipo "Blue".
 
-Card_Category_F <- factor(banche$Card_Category)
-Card_Category_F <- ordered(Card_Category_F, levels = c("Blue","Silver","Gold","Platinum"))
-display_table(Card_Category_F)
+banche$Card_Category <- factor(banche$Card_Category)
+banche$Card_Category <- ordered(banche$Card_Category, levels = c("Blue","Silver","Gold","Platinum"))
+display_table(banche$Card_Category, "Card_Category")
 
 
 #Months_on_book: variabile di tipo Quantitativo che indica il numero di mesi che
@@ -71,6 +72,12 @@ abline(v = mean(banche$Months_on_book, na.rm = T),lwd = 2, col = "green")
 #                          Raramente i clienti possiedono solo una o due carte e  
 #                          si nota che, anche se la moda è 3, sia media che mediana
 #                          sono vicine al 4
+
+display_summary_and_var(banche$Total_Relationship_Count)
+hist(banche$Total_Relationship_Count, breaks = c(0:7)+0.5,ylim= c(0,0.26), probability = T)
+abline(v = median(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "red")
+abline(v = mean(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "green")
+
 
 display_summary_and_var(banche$Total_Relationship_Count)
 hist(banche$Total_Relationship_Count, breaks = c(0:7)+0.5,ylim= c(0,0.26), probability = T)
