@@ -3,7 +3,8 @@
 calcola_devianza <- function(numerical_var, categorical_var) {
   # Creiamo un dataframe temporaneo per facilitare i calcoli
   data <- data.frame(numerical_var, categorical_var)
-  
+  # Togliamo le righe contenenti valori NA
+  data <- na.omit(data)
   # Calcoliamo la media generale
   mean_total <- mean(data$numerical_var, na.rm = T)
   
