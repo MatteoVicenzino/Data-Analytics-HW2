@@ -25,7 +25,7 @@ solo 4 osservazioni totali (<0.3%)
 ---
 Visto che stiamo lavorando con la variabile "SalePrice" come targhet avremo in generale 
 un valore molto alto per la devianza. La devianza totale è infatti 9.207911e+12
-che vediamo essere principalmente Devianza "Entro". Eta Quadro è infatti 0.246
+che  in questo caso vediamo essere principalmente Devianza "Entro". Eta Quadro è infatti 0.246
 il che mi conferma che la variazione delle medie tra i gruppi è meno marcata della
 variazione dei valori nei gruppi stessi. Il grafico ci mostra infatti che tutte
 le medie dei gruppi sono vicine alla media generale mentre classi come la "60" e
