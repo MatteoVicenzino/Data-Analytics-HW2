@@ -1006,4 +1006,264 @@ Indica l'anno di costruzione del garage
 Si nota un calo tra il 1980 e il 1990 e un picco nei primi anni del 2000
 
 
+#### Variabile `GarageFinis`
+
+```{r}
+display_table(case$GarageFinis, "finitura interna del garage")
+```
+
+GarageFinis è una variabile categoriale che rappresenta la finitura interna del garage
+si nota che la maggior parte dei garage nel campione è di tipo Unfinished che rappresenta il 43%
+
+
+#### Variabile `GarageCars`
+
+```{r}
+display_summary_and_var(case$GarageCars)
+hist(case$GarageCars, main = "Distribuzione di GarageCars", xlab = "Numero di auto nel garage")
+boxplot(case$GarageCars, main = "Boxplot di GarageCars", ylab = "Numero di auto nel garage", horizontal = T)
+```
+
+La variabile GarageCars rappresenta il numero di auto che possono essere alloggiate nel garage.
+Il boxplot mostra che la maggior parte delle case ha uno o due posti auto nel garage, con poche eccezioni che hanno più di due posti auto.
+L'istogramma mostra una distribuzione simile, con una concentrazione intorno ai valori bassi e qualche outlier con valori più alti.
+L'analisi della skewness suggerisce una leggera coda a destra nella distribuzione, indicando una maggior concentrazione di case con un numero inferiore di posti auto nel garage.
+
+
+#### Variabile `GarageArea`
+
+```{r}
+display_summary_and_var(case$GarageArea)
+hist(case$GarageArea, main = "Distribuzione di GarageArea", xlab = "Area del garage in piedi quadrati")
+boxplot(case$GarageArea, main = "Boxplot di GarageArea", ylab = "Area del garage in piedi quadrati", horizontal = T)
+```
+
+La variabile GarageArea rappresenta l'area del garage in piedi quadrati.
+Il boxplot mostra una vasta gamma di aree del garage, con alcune case che hanno garage molto grandi rispetto alla media.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle aree più basse.
+Ciò suggerisce che la maggior parte delle case ha garage di dimensioni moderate, ma ci sono alcune case con garage molto grandi.
+
+
+#### Variabile `GarageQual`
+
+```{r}
+display_table(case$GarageQual, "GarageQual")
+```
+
+La variabile GarageQual rappresenta la qualità del garage.
+Il barplot mostra la distribuzione delle diverse categorie di qualità del garage.
+La maggior parte delle case ha una qualità media o tipica del garage, con poche eccezioni che hanno una qualità eccellente o scarsa.
+
+
+#### Variabile `GarageCond`
+
+```{r}
+display_table(case$GarageCond, "GarageCond")
+```
+
+La variabile GarageCond rappresenta le condizioni del garage.
+Il barplot mostra la distribuzione delle diverse categorie di condizioni del garage.
+La maggior parte delle case ha condizioni medie o tipiche del garage, con poche eccezioni che hanno condizioni eccellenti o pessime.
+
+
+#### Variabile `PavedDrive`
+
+```{r}
+display_table(case$PavedDrive, "PavedDrive")
+```
+
+La variabile PavedDrive indica se la via di accesso è pavimentata.
+Il barplot mostra la distribuzione delle diverse categorie di tipi di via di accesso.
+La maggior parte delle case ha una via di accesso pavimentata, con poche eccezioni che hanno un accesso parzialmente pavimentato o non pavimentato.
+
+
+#### Variabile `WoodDeckSF`
+
+```{r}
+display_summary_and_var(case$WoodDeckSF)
+hist(case$WoodDeckSF, main = "Distribuzione di WoodDeckSF", xlab = "Area del deck in legno in piedi quadrati")
+boxplot(case$WoodDeckSF, main = "Boxplot di WoodDeckSF", ylab = "Area del deck in legno in piedi quadrati", horizontal = T)
+```
+
+La variabile WoodDeckSF rappresenta l'area del deck in legno in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del deck in legno, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha deck in legno di dimensioni moderate, ma ci sono alcune case con deck molto grandi.
+L'analisi della skewness mostra una leggera coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del deck in legno.
+
+
+#### Variabile `OpenPorchSF`
+
+```{r}
+display_summary_and_var(case$OpenPorchSF)
+hist(case$OpenPorchSF, main = "Distribuzione di OpenPorchSF", xlab = "Area del portico aperto in piedi quadrati")
+boxplot(case$OpenPorchSF, main = "Boxplot di OpenPorchSF", ylab = "Area del portico aperto in piedi quadrati", horizontal = T)
+
+```
+
+La variabile OpenPorchSF rappresenta l'area del portico aperto in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico aperto, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici aperti di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico aperto.
+
+
+#### Variabile `EnclosedPorch`
+
+```{r}
+display_summary_and_var(case$EnclosedPorch)
+hist(case$EnclosedPorch, main = "Distribuzione di EnclosedPorch", xlab = "Area del portico chiuso in piedi quadrati")
+boxplot(case$EnclosedPorch, main = "Boxplot di EnclosedPorch", ylab = "Area del portico chiuso in piedi quadrati", horizontal = T)
+```
+
+La variabile EnclosedPorch rappresenta l'area del portico chiuso in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico chiuso, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici chiusi di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico chiuso.
+
+
+#### Variabile `X3SsnPorch`
+
+```{r}
+variabile <- case$X3SsnPorch
+display_summary_and_var(case$X3SsnPorch)
+hist(case$X3SsnPorch, main = "Distribuzione di 3SsnPorch", xlab = "Area del portico a tre stagioni in piedi quadrati")
+boxplot(case$X3SsnPorch, main = "Boxplot di 3SsnPorch", ylab = "Area del portico a tre stagioni in piedi quadrati", horizontal = T)
+```
+
+La variabile 3SsnPorch rappresenta l'area del portico a tre stagioni in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico a tre stagioni, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici a tre stagioni di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una leggera coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico a tre stagioni.
+
+
+#### Variabile `ScreenPorch`
+
+```{r}
+variabile <- case$ScreenPorch
+display_summary_and_var(case$ScreenPorch)
+hist(case$ScreenPorch, main = "Distribuzione di ScreenPorch", xlab = "Area del portico dello schermo in piedi quadrati")
+boxplot(case$ScreenPorch, main = "Boxplot di ScreenPorch", ylab = "Area del portico dello schermo in piedi quadrati", horizontal = T)
+```
+
+La variabile ScreenPorch rappresenta l'area del portico dello schermo in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico dello schermo, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici dello schermo di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico dello schermo.
+
+
+#### Variabile `PoolArea`
+
+```{r}
+display_summary_and_var(case$PoolArea)
+hist(case$PoolArea, main = "Distribuzione di PoolArea", xlab = "Area della piscina in piedi quadrati")
+boxplot(case$PoolArea, main = "Boxplot di PoolArea", ylab = "Area della piscina in piedi quadrati", horizontal = T)
+```
+
+La variabile PoolArea rappresenta l'area della piscina in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni della piscina, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha piscine di dimensioni moderate, ma ci sono alcune case con piscine molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse della piscina.
+
+
+#### Variabile `PoolQC`
+
+```{r}
+display_table(case$PoolQC, "qualità della piscina")
+```
+
+La variabile PoolQC rappresenta la qualità della piscina.
+Il barplot mostra la distribuzione delle diverse categorie di qualità della piscina.
+La maggior parte delle case non ha una piscina, con poche eccezioni che hanno piscine di alta qualità.
+
+
+#### Variabile `Fence`
+
+```{r}
+display_table(case$Fence, "qualità del recinto")
+```
+
+La variabile Fence rappresenta la qualità del recinto.
+Il barplot mostra la distribuzione delle diverse categorie di qualità del recinto.
+La maggior parte delle case non ha un recinto, mentre una piccola parte ha recinti di qualità variabile.
+
+
+#### Variabile `MiscFeature`
+
+```{r}
+display_table(case$MiscFeature, "altre caratteristiche extra")
+```
+
+La variabile MiscFeature rappresenta altre caratteristiche extra presenti nelle proprietà.
+Il barplot mostra la distribuzione delle diverse categorie di caratteristiche extra.
+La maggior parte delle case non ha caratteristiche extra, con poche eccezioni che includono strutture come ripostigli, recinti e altri.
+
+
+#### Variabile `MiscVal`
+
+```{r}
+print(display_summary_and_var(case$MiscVal))
+hist(case$MiscVal, main = "Distribuzione di MiscVal", xlab = "Valore delle caratteristiche extra")
+boxplot(case$MiscVal, main = "Boxplot di MiscVal", ylab = "Valore delle caratteristiche extra", horizontal = T)
+```
+
+La variabile MiscVal rappresenta il valore delle caratteristiche extra.
+Il boxplot mostra che la maggior parte delle case ha un valore extra basso, con alcune eccezioni che hanno un valore extra più alto.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra.
+Questo suggerisce che la maggior parte delle case ha valori extra di basso valore, ma ci sono alcune case con valori extra molto alti.
+
+
+#### Variabile `MoSold`
+
+```{r}
+display_summary_and_var(case$MoSold)
+hist(case$MoSold, main = "Distribuzione di MoSold", xlab = "Mese di vendita")
+boxplot(case$MoSold, main = "Boxplot di MoSold", ylab = "Mese di vendita", horizontal = T)
+```
+
+La variabile MoSold rappresenta il mese in cui la casa è stata venduta.
+Il boxplot mostra che le vendite sono distribuite durante tutto l'anno, con picchi nei mesi di primavera e estate.
+L'istogramma mostra che i mesi con il maggior numero di vendite sono giugno, luglio e agosto.
+L'analisi della skewness indica una distribuzione abbastanza uniforme delle vendite durante l'anno.
+
+
+#### Variabile `YrSold`
+
+```{r}
+display_summary_and_var(case$YrSold)
+hist(case$YrSold, main = "Distribuzione di YrSold", xlab = "Anno di vendita")
+boxplot(case$YrSold, main = "Boxplot di YrSold", ylab = "Anno di vendita", horizontal = T)
+```
+
+La variabile YrSold rappresenta l'anno in cui la casa è stata venduta.
+Il boxplot mostra che le vendite sono distribuite uniformemente tra gli anni presenti nel dataset.
+L'istogramma mostra che c'è una leggera diminuzione del numero di vendite negli anni più recenti.
+L'analisi della skewness indica una distribuzione relativamente uniforme delle vendite negli anni considerati.
+
+
+#### Variabile `SaleType`
+
+```{r}
+display_table(case$SaleType, "tipo di vendita della casa")
+```
+
+La variabile SaleType rappresenta il tipo di vendita della casa.
+# Il barplot mostra la distribuzione delle diverse categorie di tipi di vendita.
+# La maggior parte delle case è venduta con una vendita normale, con altre categorie come vendita in contanti, vendita con finanziamento, e altre meno comuni.
+
+
+#### Variabile `SaleCondition`
+
+```{r}
+display_table(case$SaleCondition, "condizioni di vendita")
+```
+
+La variabile SaleCondition rappresenta le condizioni di vendita della casa.
+Il barplot mostra la distribuzione delle diverse categorie di condizioni di vendita.
+La maggior parte delle case è venduta in condizioni normali, con altre categorie come vendite anomale, vendite parziali e altre meno comuni.
+
 
