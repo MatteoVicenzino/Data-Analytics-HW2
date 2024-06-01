@@ -67,8 +67,8 @@ Anche rimuovendo i valori più estremi la correlazione cambia poco.
 
 #LotArea: 
 
-Variabile Quantitativa che indica l'area della proprietà. Ha un range di valori molto alto dovuto principalmente alla fresenza di valori estremi 
-che arrivano ad un massimo di 2.152450e+05. 
+Variabile Quantitativa che indica l'area della proprietà. Ha un range di valori molto alto 
+dovuto principalmente alla fresenza di valori estremi che arrivano ad un massimo di 2.152450e+05. 
 
 La granparte delle osservazioni rimane sotto i 25000 metri quadrati con un alta concentrazione
 tra 7500 e 11600. Media e mediana molto vicine tra loro e skewness, infatti, molto 
@@ -127,7 +127,8 @@ elevato di osservazioni rispetto alle altre. "Lvl", ovvero "a livello con il ter
 comprende quasi il 90% delle proprietà osservate.
 ---
 La devianza "Tra" è ancora molto bassa con Eta quadro uguale 0.02579409. Anche se
-il gruppo "Lvl" non comprendesse 90% delle osservazioni, tutte le medie dei gruppi sono molto vicine a quella generaleù. I gruppi hanno range di valori simili  fatta eccezione 
+il gruppo "Lvl" non comprendesse 90% delle osservazioni, tutte le medie dei gruppi sono 
+molto vicine a quella generaleù. I gruppi hanno range di valori simili  fatta eccezione 
 di "Lvl" che possiede anche quelli più estremi.
 
 #Utilities:
@@ -198,8 +199,8 @@ non possiamo sapere se le 15 abitazioni che sono vicine a 2 punti di interesse
 non siano vicine anche a 3 o più di essi.
 ---
 Eta Quadro è anche qui molto basso ed essendo tutti i gruppi diversi da "Norm" 
-formati da al 6 proprietà, non abbiamo una sample size abbastanza grande per fare previsioni sul comportamento della variabile "SalePrice" al variare di
-"Condition2".
+formati da al 6 proprietà, non abbiamo una sample size abbastanza grande per fare previsioni 
+sul comportamento della variabile "SalePrice" al variare di "Condition2".
 
 #BldgType:
 
@@ -255,21 +256,3 @@ Media e Mediana sono vicine mentre la Deviazione Standard e Varianza non sono ba
 Il coefficente di correlazione in questo caso è uguale a 0.5228973, il che denota 
 una discreta correlazione tra le due variabili. R Quadro ha un valore di 0.2729 che 
 mi indica una dispersione dei punti ampia intorno alla mia retta di reggressione.
-
-
-
-
-
-
-
----
-title: "Analisi Variabili Banca"
----
-
-
-
-
-
-
-
-
