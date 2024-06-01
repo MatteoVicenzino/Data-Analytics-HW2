@@ -42,7 +42,12 @@ ggplot(case, aes(x = as.factor(RoofStyle), y = SalePrice)) + geom_violin() + the
 # grafico colorato
 ggplot(case, aes(x = as.factor(MasVnrType), y = SalePrice, fill = as.factor(MasVnrType))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
 
-
+#YearRemodAdd
+calcolo_cov_cor(case$YearRemodAdd)
+model <- lm(SalePrice ~ YearRemodAdd, data = case)
+summary(model)
+ggplot(case, aes(x = log(YearRemodAdd), y = log(SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+# il coefficiente di correlazione lineare è circa 0.5. Dal modello di regressione lineare osserviamo un valore di R^2 pari a circa 0.26.
 
 # RoofStyle
 case$RoofStyle <- factor(case$RoofStyle)
