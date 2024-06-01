@@ -147,25 +147,11 @@ ggplot(case, aes(x = ordered(factor(HouseStyle), levels = c("1Story","1.5Fin","1
 
 #OverallQual: 
 
-#V1
-cor(case$OverallQual, case$SalePrice, use="complete.obs")
-model <- lm(SalePrice ~ OverallQual, data = case)
-summary(model)
-ggplot(case, aes(x = OverallQual, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
-
-#V2
 calcola_devianza(case$SalePrice, factor(case$OverallQual))
 ggplot(case, aes(x = factor(OverallQual), y = SalePrice, fill = factor(OverallQual))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
 
 #OverallCond:
 
-#V1
-cor(case$OverallCond, case$SalePrice, use="complete.obs")
-model <- lm(SalePrice ~ OverallCond, data = case)
-summary(model)
-ggplot(case, aes(x = OverallCond, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
-
-#V2
 calcola_devianza(case$SalePrice, factor(case$OverallCond))
 ggplot(case, aes(x = factor(OverallCond), y = SalePrice, fill = factor(OverallCond))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") 
 
