@@ -808,4 +808,202 @@ display_table(case$HeatingQC, "Qualità e condizione del riscaldamento")
 analogamente alle variabili precedenti, variabile qualitativa categoriale con 5 diverse categorie, si è scelto di riordinare i levels nel seguente ordine: "Poor","Fair","Average/Typical","Good","Excellent" la maggioranza delle case nel campione (50.7%) ha una eccellente qualità e condizione del riscaldamento
 
 
+#### Variabile `CentralAir`
+
+```{r}
+case$CentralAir <- factor(case$CentralAir)
+display_table(case$CentralAir, titolo = 'central air conditioning')
+```
+
+Si osserva che il 93% circa delle case ha il central air conditioning.
+
+
+#### Variabile `Electrical`
+
+```{r}
+case$Electrical <- factor(case$Electrical)
+display_table(case$Electrical, titolo = 'sistema elettrico')
+```
+
+Vi sono 4 tipi diversi, il 91% delle case ha il circuito standard, il restante 9% si dovide negli altri tre tipi. il 6% è rappresentato dal tipo FuseA
+
+
+#### Variabile `X1stFlrSF`
+
+```{r}
+display_summary_and_var(case$X1stFlrSF)
+hist(case$X1stFlrSF, probability = T, main = 'superficie primo piano')
+```
+
+La maggior parte delle case si trova nel range 800-1200 piedi quadrati
+
+
+#### Variabile `X2ndFlrSF`
+
+```{r}
+display_summary_and_var(case$X2ndFlrSF)
+hist(case$X2ndFlrSF, probability = T, main = 'superficie secondo piano')
+# solo le case che hanno solo il secondo piano:
+display_summary_and_var(subset(case$X2ndFlrSF, case$X2ndFlrSF != 0))
+hist(subset(case$X2ndFlrSF, case$X2ndFlrSF != 0), main = 'istogramma case con un secondo piano', probability = T)
+```
+
+La maggior parte delle case (il 56 %) non possiede un secondo piano, prendendo in considerazione solo quelle che lo hanno osserviamo una media di 776 ft^2 e una mediana di 776 ft^2
+
+
+#### Variabile `LowQualFinSF`
+
+```{r}
+display_summary_and_var(case$LowQualFinSF)
+hist(case$LowQualFinSF, prob = T, main = 'low quality finished square feet')
+length(case$LowQualFinSF[case$LowQualFinSF == 0])
+```
+
+Si osserva che 1434 case su 1460 hanno 0 low quality finished square feet
+
+
+#### Variabile `GrLivArea`
+
+```{r}
+display_summary_and_var(case$GrLivArea)
+hist(case$GrLivArea, probability = T)
+boxplot(case$GrLivArea)
+points(mean(case$GrLivArea), col = 'red')
+```
+
+Usando il boxplot vediamo che la media è vicina alla mediana (intorno a 1500) e che vi è una bassa varianza, tuttavia sono presenti molti outliers che hanno più 3000 piedi quadrati di superficie abitablie sopra il suolo
+
+
+#### Variabile `BsmtFullBath`
+
+```{r}
+case$BsmtFullBath <- factor(case$BsmtFullBath)
+display_table(case$BsmtFullBath, titolo = 'Basement full bath')
+```
+
+Presenta solo i caratteri 0, 1 , 2 e 3. il 59% delle case ha 0, il 40% 1
+
+
+#### Variabile `BsmtHalfBath`
+
+```{r}
+case$BsmtHalfBath <- factor(case$BsmtHalfBath)
+display_table(case$BsmtHalfBath, titolo = 'Basement half bath')
+```
+
+Presenta i caratteri 0, 1 e 2, il 94% delle case ha 0, il 5% 1
+
+
+#### Variabile `BedroomAbvGr`
+
+```{r}
+case$BedroomAbvGr <- factor(case$BedroomAbvGr)
+display_table(case$BedroomAbvGr, titolo = 'Bedroom above grade')
+```
+
+Numero camere sopra il livello del suolo, non include le camerdel basement.
+Il 55% delle case ne ha 3. 
+
+
+#### Variabile `KitchenAbvGr`
+
+```{r}
+case$KitchenAbvGr <- factor(case$KitchenAbvGr)
+display_table(case$KitchenAbvGr, 'Kitchen above grade')
+```
+
+Numero cucine sopra il livello del suolo
+il 95% delle case ne ha 1 
+
+
+#### Variabile `KitchenQual`
+
+```{r}
+case$KitchenQual <- factor(case$KitchenQual, levels = c('Ex', 'Fa', 'Gd', 'TA', 'Po'))
+display_table(case$KitchenQual, titolo = 'Kitchen quality')
+```
+
+Qualità delle cucine.
+Il 50% delle cucine è a un livello Average e il 40% a un livelo good
+
+
+#### Variabile `TotRmsAbvGrd`
+
+```{r}
+display_summary_and_var(case$TotRmsAbvGrd)
+rbind(tot = table(case$TotRmsAbvGrd), prop = prop.table(table(case$TotRmsAbvGrd)))
+boxplot(case$TotRmsAbvGrd)
+```
+
+Totale stanze above grade, non include i bagni
+Il 28% ha 6 stanze
+
+
+#### Variabile `Functional`
+
+```{r}
+case$Functional <- factor(case$Functional)
+display_table(case$Functional, titolo = 'home functionality')
+```
+
+Home functionality
+Il 93% delle case presenta typical functionality.
+
+
+
+#### Variabile `Fireplaces`
+
+```{r}
+case$Fireplaces <- factor(case$Fireplaces)
+display_table(case$Fireplaces, titolo = 'Fireplaces')
+```
+
+Il 47% delle case ha 0, il 44% ha 1
+
+
+#### Variabile `FireplaceQu`
+
+```{r}
+case$FireplaceQu <- factor(case$FireplaceQu)
+display_table(case$FireplaceQu, titolo = 'fireplace quality')
+```
+
+Qualità dei fire places
+Il 41% ha una qualità average, il 49% ha una qualità good
+
+
+#### Variabile `GarageType`
+
+```{r}
+case$GarageType <- factor(case$GarageType)
+display_table(case$GarageType, titolo = 'Garage type')
+```
+
+Posizione garage
+Il 63% ha il garage affiancato alla casa
+
+
+#### Variabile `GarageFinish`
+
+```{r}
+case$GarageFinish <- factor(replace(case$GarageFinish, is.na(case$MSSubClass), "Non Presente"), levels = c('Fin', 'RFn', 'Unf', 'NA'))
+display_table(case$GarageFinish, titolo = 'Garage finish')
+```
+
+Indica lo stato del garage
+Il 43% delle case ha il garage non finito
+
+
+#### Variabile `GarageYrBlt`
+
+```{r}
+hist(case$GarageYrBlt, probability = T,breaks= c(5*0:28)+1870,  main = 'anno costruzione garage')
+abline(v = median(case$GarageYrBlt, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$GarageYrBlt, na.rm = T),lwd = 1)
+```
+
+Indica l'anno di costruzione del garage
+Si nota un calo tra il 1980 e il 1990 e un picco nei primi anni del 2000
+
+
 
