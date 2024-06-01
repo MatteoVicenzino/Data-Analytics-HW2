@@ -1,4 +1,5 @@
 # Funzione per calcolare la devianza entro i gruppi e fra i gruppi
+# AGGIUNTI GLI NA.RM
 calcola_devianza <- function(numerical_var, categorical_var) {
   # Creiamo un dataframe temporaneo per facilitare i calcoli
   data <- data.frame(numerical_var, categorical_var)
@@ -23,10 +24,9 @@ calcola_devianza <- function(numerical_var, categorical_var) {
   devianza_entro_gruppi <- 0
   for (livello in livelli) {
     gruppo <- data[data$categorical_var == livello,]
-    mean_gruppo <- mean(gruppo$numerical_var, na.rm = T)
-    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm=T)
+    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2, na.rm=T)
   }
   
   return(list(devianza_totale = devianza_totale, devianza_tra_gruppi = devianza_tra_gruppi, devianza_entro_gruppi = devianza_entro_gruppi, eta2 = (devianza_tra_gruppi/devianza_totale)))
 }
-
