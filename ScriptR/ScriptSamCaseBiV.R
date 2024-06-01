@@ -164,10 +164,10 @@ calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(cas
 
 #Year garage was built
 
-calcolo_cov_cor(case$X1stFlrSF)
-lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
+cor(case$GarageYrBlt, case$SalePrice, use="complete.obs")
+lmodel <- lm(data = case, formula = (GarageYrBlt~SalePrice))
 summary(lmodel)
-ggplot(data = case , aes(x=log(X1stFlrSF), y=log(SalePrice))) +
+ggplot(data = case , aes(x=log(GarageYrBlt), y=log(SalePrice))) +
   geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
 
 #il coefficiente di correlazione lineare vale 0.6, dal modello di regressione lineare osserviamo un valore di  R^2 pari a 0.366.
