@@ -416,7 +416,7 @@ calcola_devianza(case$SalePrice, case$ExterQual)
 ggplot(case, aes(x = as.factor(ExterQual), y = SalePrice, fill = as.factor(ExterQual))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE)
 ```
 
-La variabile ExterQual influenza fortemente il prezzo di una casa. Si può infatti notare che il rapporto tra la la devianza between e la devianza totale è di 0.4 .
+La variabile ExterQual influenza fortemente il prezzo di una casa. Si può infatti notare che il rapporto tra la la devianza between e la devianza totale è di 0.48 .
 Come si vede anche dal grafico più la finitura esterna è di qualità e più il prezzo della casa sale.
 
 
@@ -429,7 +429,7 @@ ggplot(case, aes(x = as.factor(ExterCond), y = SalePrice, fill = as.factor(Exter
 ```
 
 La variabile ExterCond influenza debolmente il prezzo.
-Il valore di ETS^2 è di 0.2 infatti dal grafico si evince che le classi Average/typical e Good contengono numerosi valori outlier, con un prezzo più alto della media.
+Il valore di ETA^2 è di 0.02 infatti dal grafico si evince che le classi Average/typical e Good contengono numerosi valori outlier, con un prezzo più alto della media.
 
 
 #### Variabile `Foundation`
@@ -454,7 +454,7 @@ ggplot(case, aes(x = as.factor(BsmtQual), y = SalePrice, fill = as.factor(BsmtQu
 ```
 
 Si nota una forte correlazione tra la qualità del seminterrato e il prezzo delle case. 
-Il rapporto tra la devianza totale e la devianza tra i gruppi è vicina al 55% che è dimostrato dal grafico in cui si vede che la media dei prezzi delle case con la qualità del seminterrato Fair è la più bassa mentre la media dei prezzi delle case con la qualità del seminterrato Excellent è la più alta.
+Il rapporto tra la devianza tra i gruppi e la Devianza Totale è vicina al 45% che è dimostrato dal grafico in cui si vede che la media dei prezzi delle case con la qualità del seminterrato Fair è la più bassa mentre la media dei prezzi delle case con la qualità del seminterrato Excellent è la più alta.
 
 
 #### Variabile `BsmtCond`
@@ -491,7 +491,7 @@ ggplot(case, aes(x = as.factor(BsmtFinType1), y = SalePrice, fill = as.factor(Bs
 ```
 
 Dal grafico si nota che le medie e le mediane di ogni classe sono tutte sullo stesso livello.
-Questo indica un basso valore di varianza between, infatti il rapporto con l avarianza totale è di 0.21 .
+Questo indica un basso valore di varianza between, infatti il rapporto con la varianza totale è di 0.1925976   .
 Questo a sua volta indica una bassa influenza della variabile BsmtFinType1 sui prezzi delle case.
 
 
@@ -519,7 +519,7 @@ ggplot(case, aes(x = as.factor(BsmtFinType2), y = SalePrice, fill = as.factor(Bs
 ```
 
 Le due variabili non sono correlate infatti un grande numero di case, anche con prezzi elevati, hanno il seminterrato incompleto. 
-Questo si può notare anche dal valore di ETA^2 che è molto basso, dello 0.19% dovuto alla codevianza between molto bassa
+Questo si può notare anche dal valore di ETA^2 che è molto basso (0.009452351) dovuto alla codevianza between molto bassa.
 
 
 #### Variabile `BsmtFinSF2`
