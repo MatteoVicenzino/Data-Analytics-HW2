@@ -1,6 +1,5 @@
 library(moments)
 
-banche <- read.csv("~/Documents/UNI/2_anno_23_24/Analytics/6_HW2/Dati/BankChurners.csv", header=TRUE)
 
 ncol(banche)
 str(banche)
