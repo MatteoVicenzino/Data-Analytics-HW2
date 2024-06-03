@@ -1,6 +1,5 @@
 library(moments)
 
-case <- read.csv("~/Documents/UNI/2_anno_23_24/Analytics/6_HW2/Dati/train.csv", header=TRUE)
 
 ncol(case)
 str(case)
