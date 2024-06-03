@@ -1,7 +1,6 @@
 library(moments)
 library(ggplot2)
 
-case <- read.csv("~/Documents/UNI/2_anno_23_24/Analytics/6_HW2/Dati/train.csv", header=TRUE)
 
 
 # target case$SalePrice  sulla y
