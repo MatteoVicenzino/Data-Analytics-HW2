@@ -1,0 +1,2261 @@
+---
+title: "hw2"
+output: word_document
+date: "2024-06-01"
+---
+## importazione dei dataset
+```{r}
+case <- read.csv("train.csv", stringsAsFactors = TRUE)
+banche <- read.csv("credit_card.csv")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Librerie necessarie
+```{r}
+library(moments)
+library(ggplot2)
+library(dplyr)
+```
+
+## Funzioni usate nel progetto
+### Funzioni per Analisi Univariata
+
+```{r}
+# Funzione per le Variabili Quantitative
+display_summary_and_var <- function(variabile){
+  c(summary(variabile), 
+  var = var(variabile, na.rm = T), 
+  sd = sd(variabile, na.rm = T),
+  sk = skewness(variabile, na.rm = T))
+}
+
+# Funzione per le Variabili Qualitative
+display_table <- function(variabile, titolo){
+  DistAs <- table(variabile)
+  DistRe <- prop.table(table(variabile))
+  barplot(prop.table(table(variabile)), main = titolo)
+  print(rbind(DistAs, DistRe))
+}
+```
+
+### Funzioni per Analisi Bivariata
+
+```{r}
+# Funzione per le Variabili Quantitative
+calcolo_cov_cor <- function(variabile_numerica) {
+  c(cov = cov(variabile_numerica, case$SalePrice, use = "complete.obs"), cor = cor(variabile_numerica, case$SalePrice, use = "complete.obs"))
+}
+# Funzione per le Variabili Qualitative
+calcola_devianza <- function(numerical_var, categorical_var) {
+  # Creiamo un dataframe temporaneo per facilitare i calcoli
+  data <- data.frame(numerical_var, categorical_var)
+  # Togliamo le righe contenenti valori NA
+  data <- na.omit(data)
+  # Calcoliamo la media generale
+  mean_total <- mean(data$numerical_var, na.rm = T)
+  
+  # Devianza totale
+  devianza_totale <- sum((data$numerical_var - mean_total)^2)
+  
+  # Calcolo della devianza tra i gruppi
+  devianza_tra_gruppi <- 0
+  livelli <- levels(data$categorical_var)
+  for (livello in livelli) {
+    gruppo <- data[data$categorical_var == livello, ]
+    n <- nrow(gruppo)
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm = T)
+    devianza_tra_gruppi <- devianza_tra_gruppi + n * (mean_gruppo - mean_total)^2
+  }
+  
+  # Calcolo della devianza entro i gruppi
+  devianza_entro_gruppi <- 0
+  for (livello in livelli) {
+    gruppo <- data[data$categorical_var == livello,]
+    mean_gruppo <- mean(gruppo$numerical_var, na.rm=T)
+    devianza_entro_gruppi <- devianza_entro_gruppi + sum((gruppo$numerical_var - mean_gruppo)^2, na.rm=T)
+  }
+  
+  return(list(devianza_totale = devianza_totale, devianza_tra_gruppi = devianza_tra_gruppi, devianza_entro_gruppi = devianza_entro_gruppi, eta2 = (devianza_tra_gruppi/devianza_totale)))
+}
+```
+
+## Dataset - Credit card customers
+### Analisi univariata
+#### Variabile `Attrition_Flag`
+
+```{r}
+banche$Attrition_Flag <- factor(banche$Attrition_Flag)
+display_table(banche$Attrition_Flag, "Attrition_Flag")
+```
+
+Si nota che l'83.9% dei dati riguarda clienti esistenti della banca mentre il 16.1% dei dati riguarda clienti persi / clienti passati.
+
+
+#### Variabile `Customer Age`
+
+```{r}
+display_summary_and_var(banche$Customer_Age)
+hist(banche$Customer_Age, freq = F, main = "distribuzione età")
+boxplot(banche$Customer_Age, horizontal = T)
+```
+
+La variabile giguardante l'età dei clienti è una variabile quantitativa, si nota che l'età media del campione è 46.33 e la mediana è 46.00, i valori sono abbastanza vicini infati se si calcola l'indice di asimmetria attraverso la fnuzione skewness() si ottiene un numero prossimo allo zero. Infine dal boxplot si evince che 2 clienti hanno come età dei valori outliers
+
+
+#### Variabile `Gender`
+
+```{r}
+banche$Gender <- factor(banche$Gender)
+display_table(banche$Gender, "Gender")
+```
+
+La variabile Gender è una variabile qualitativa che presenta le seguenti frequenze relative: si osserva che la frequenza delle donne è leggermente maggiore
+
+
+#### Variabile `Dependent_count`
+
+```{r}
+display_summary_and_var(banche$Dependent_count)
+barplot(prop.table(table(banche$Dependent_count)))
+```
+
+E' una variabile quantitativa discreta, che ha come minimo 0 e come massimo 5
+la media dei valori è 2.346
+
+
+#### Variabile `Education_level`
+
+```{r}
+banche$Education_Level <- factor(banche$Education_Level, levels = c("Unknown","Uneducated","High School", "College", "Graduate", "Post-Graduate", "Doctorate") )
+display_table(banche$Education_Level, "Education_level")
+```
+
+La variabile Gender è una variabile qualitativa che presenta le seguenti frequenze relative: si osserva che la frequenza maggiore è quella relativa ai clienti "Graduate", del 30.8% e si osserva inoltre che non si conoscono i dati di circa il 15% del nostro campione
+
+
+#### Variabile `Marital_Status`
+
+```{r}
+banche$Marital_Status <- factor(banche$Marital_Status)
+banche$Marital_Status <- ordered(banche$Marital_Status, levels = c("Single", "Married", "Divorced", "Unknown"))
+display_table(banche$Marital_Status,"Marital_Status")
+```
+
+Variabile Character che indica lo stato di relazione della persona che possiede il conto in banca. Vediamo che le categorie più popolari sono "Merried" e "single"
+
+
+#### Variabile `Income_Category`
+
+```{r}
+banche$Income_Category <- factor(banche$Income_Category)
+banche$Income_Category <- ordered(banche$Income_Category, levels = c("Less than $40K","$40K - $60K","$60K - $80K","$80K - $120K","$120K +","Unknown"))
+display_table(banche$Income_Category, "Income_Category")
+```
+
+Anche se la variabile potrebbe essere vista come una variabile Numerica che rappresenta il reddito diviso in classi, questa ci viene invece fornita come variabile Character che verrà ordinata a mano.
+La "Classe" più comune è "Less than $40K" e la più rara "$120K +".
+
+
+#### Variabile `Card_Category`
+
+```{r}
+banche$Card_Category <- factor(banche$Card_Category)
+banche$Card_Category <- ordered(banche$Card_Category, levels = c("Blue","Silver","Gold","Platinum"))
+display_table(banche$Card_Category, "Card_Category")
+```
+
+E' una variabile Character che indica la categoria di carta del della persona che possiede il conto. Considerando che i "livelli" di una carta di credito si spostano generalmente da bronzo fino a platino si riordiniamo i livelli prima di continuare le osservazioni (nel nostro caso il "Bronzo" corrisponderà al "Blue")
+Le carte rilasciate sono quasi esclusivamente del tipo "Blue".
+
+
+#### Variabile `Months_on_book`
+
+```{r}
+display_summary_and_var(banche$Months_on_book)
+hist(banche$Months_on_book, breaks = c(3*0:20), probability = T)
+curve(dnorm(x,mean(banche$Months_on_book, na.rm = T), sd(banche$Months_on_book, na.rm = T)),add = T)
+abline(v = median(banche$Months_on_book, na.rm = T),lwd = 2, col = "red")
+abline(v = mean(banche$Months_on_book, na.rm = T),lwd = 2, col = "green")
+
+```
+
+Variabile di tipo Quantitativo che indica il numero di mesi che che un cliente ha passato come cliente della Banca
+Vediamo che è presente un picco tra 33 e 36 che va ben sopra la gaussiana costruita con Media e SD della distribuzione.
+Moda e Mediana sono estremamente vicine.
+
+
+#### Variabile `Total_Relationship_Count`
+
+```{r}
+display_summary_and_var(banche$Total_Relationship_Count)
+hist(banche$Total_Relationship_Count, breaks = c(0:7)+0.5,ylim= c(0,0.26), probability = T)
+abline(v = median(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "red")
+abline(v = mean(banche$Total_Relationship_Count, na.rm = T),lwd = 2, col = "green")
+```
+
+E' una variabile numerica che rappresenta il numero totale di prodotti della banca posseduto dal utente.
+Raramente i clienti possiedono solo una o due carte e si nota che, anche se la moda è 3, sia media che mediana sono vicine al 4.
+
+
+#### Variabile `month_inactive`
+
+```{r}
+banche$Months_Inactive_12_mon <-factor(banche$Months_Inactive_12_mon)
+display_table(banche$Months_Inactive_12_mon, titolo = 'Month inactive 12 month')
+```
+
+Si osserva una maggiore concentrazione di valori in 2 e 3
+presenta solamente valori da 1 a 6 quindi verrà trattata come una variabile categoriale
+
+
+#### Variabile `contacts count 12 month`
+
+```{r}
+banche$Contacts_Count_12_mon <- factor(banche$Contacts_Count_12_mon)
+display_table(banche$Contacts_Count_12_mon, titolo = 'contacts 12 month')
+```
+
+Anche qui si osserva una maggiore concentrazione di valori maggiore in 2 e 3, questa variabile è meno assimetrica della precedente
+presenta solamente valori da 1 a 6 quindi verrà trattata come una variabile categoriale
+
+
+#### Variabile `credit limit`
+
+```{r}
+display_summary_and_var(banche$Credit_Limit)
+hist(banche$Credit_Limit, freq = T, main = "distribuzione credito limite")
+```
+
+Si osserva una forte asimetria nella distribuzione, la media è di circa 8631 mentre la mediana di 4549
+
+
+#### Variabile `total revolving bal`
+
+```{r}
+display_summary_and_var(banche$Total_Revolving_Bal)
+hist(banche$Total_Revolving_Bal, freq = T, main = "Total Revolving Bal")
+boxplot(banche$Total_Revolving_Bal, horizontal = T)
+```
+
+Si osserva che la moda è 0
+
+
+#### Variabile `avg open to buy`
+
+```{r}
+display_summary_and_var(banche$Total_Revolving_Bal)
+hist(banche$Avg_Open_To_Buy ,freq = T, main = "distribuzione avg_open_to_buy")
+```
+
+distribuzione asimetrica concentrata a sinistra
+
+
+#### Variabile `Total_Amt_Chng_Q4_Q1`
+
+```{r}
+display_summary_and_var(banche$Total_Amt_Chng_Q4_Q1)
+hist(banche$Total_Amt_Chng_Q4_Q1, freq = F, main = "Distribuzione Total_Amt_Chng_Q4_Q1")
+boxplot(banche$Total_Amt_Chng_Q4_Q1, horizontal = T)
+```
+
+La variabile Total_Amt_Chng_Q4_Q1 è quantitativa e rappresenta il cambiamento nell'importo totale delle transazioni tra il quarto trimestre e il primo trimestre. La distribuzione ha una skewness positiva, indicando una coda lunga a destra. Questo significa che la maggior parte dei clienti ha avuto cambiamenti minori, con pochi clienti che hanno avuto grandi aumenti nell'importo delle transazioni.
+
+
+#### Variabile `Total_Trans_Amt`
+
+```{r}
+display_summary_and_var(banche$Total_Trans_Amt)
+hist(banche$Total_Trans_Amt, freq = F, main = "Distribuzione Total_Trans_Amt")
+boxplot(banche$Total_Trans_Amt, horizontal = T)
+```
+
+La variabile Total_Trans_Amt è quantitativa e rappresenta l'importo totale delle transazioni. Anche questa variabile ha una skewness positiva, indicando che la maggior parte dei clienti ha un importo totale delle transazioni relativamente basso, con alcuni che hanno importi significativamente più alti.
+
+
+#### Variabile `Total_Trans_Ct`
+
+```{r}
+display_summary_and_var(banche$Total_Trans_Ct)
+hist(banche$Total_Trans_Ct, freq = F, main = "Distribuzione Total_Trans_Ct")
+boxplot(banche$Total_Trans_Ct, horizontal = T)
+```
+
+La variabile Total_Trans_Ct è quantitativa e rappresenta il numero totale delle transazioni. La distribuzione mostra una skewness positiva, indicando che la maggior parte dei clienti effettua un numero relativamente basso di transazioni, mentre pochi clienti effettuano un numero molto alto di transazioni.
+
+
+#### Variabile `Total_Ct_Chng_Q4_Q1`
+
+```{r}
+display_summary_and_var(banche$Total_Ct_Chng_Q4_Q1)
+hist(banche$Total_Ct_Chng_Q4_Q1, freq = F, main = "Distribuzione Total_Ct_Chng_Q4_Q1")
+boxplot(banche$Total_Ct_Chng_Q4_Q1, horizontal = T)
+```
+
+La variabile Total_Ct_Chng_Q4_Q1 rappresenta il cambiamento nel numero totale delle transazioni tra il quarto trimestre e il primo trimestre. Anche questa variabile mostra una skewness positiva, indicando una coda lunga a destra. La maggior parte dei clienti ha avuto cambiamenti minori nel numero di transazioni, con pochi che hanno avuto grandi aumenti.
+
+
+#### Variabile `Avg_Utilization_Ratio`
+
+```{r}
+display_summary_and_var(banche$Avg_Utilization_Ratio)
+hist(banche$Avg_Utilization_Ratio, freq = F, main = "Distribuzione Avg_Utilization_Ratio")
+boxplot(banche$Avg_Utilization_Ratio, horizontal = T)
+```
+
+La variabile Avg_Utilization_Ratio è quantitativa e rappresenta il rapporto medio di utilizzo della carta di credito. La distribuzione ha una skewness positiva, indicando che la maggior parte dei clienti utilizza una piccola porzione del proprio credito disponibile, con pochi che utilizzano una grande porzione.
+
+
+
+## Dataset - House Prices
+### Analisi univariata
+#### Variabile `MSSubClass`
+
+```{r}
+case$MSSubClass <- factor(replace(case$MSSubClass, is.na(case$MSSubClass), "Non Presente"))
+display_table(case$MSSubClass, "Subclassi")
+```
+
+Una Variabile Qualitativa che descrive il tipo di abitazione della proprietà in vendita.
+Questi tipi di abitazione sono in totale 16 e vengono indicati, per brevità, usando dei numeri. I numeri delle classi non possono essere quindi usati per calcolare medie o mediane.
+La variabile non è ben distribuita, infatti solo le classi "20" e "60" comprendono il 57.20% delle osservazioni totali. La classe meno presente è invece "40" con solo 4 osservazioni totali (<0.3%).
+
+
+#### Variabile `MSZoning`
+
+```{r}
+case$MSZoning <- factor(replace(case$MSZoning, is.na(case$MSZoning), "Non Presente"))
+display_table(case$MSZoning,"Classificazione della Proprietà")
+```
+
+Una Variabile Quantitativa che indica il tipo di classificazione della proprietà in vendita.
+Sono presenti un totale di 5 diversi tipi indicati con una sigla di al più 2 lettere.
+La variabile non è distribuita uniformemente con "RL" (Residenziale a bassa densità) che comprende il 78.73% delle osservazioni totali. La classe meno presente è "C" (Commerciale) che viene vista sole 10 volte (<0.7%).
+
+
+#### Variabile `LotFrontage`
+
+```{r}
+display_summary_and_var(case$LotFrontage)
+hist(case$LotFrontage, probability = T, breaks =c(5*0:64),col = "gray", main = "Quantità di strada in piedi collegata alla proprietà")
+abline(v = median(case$LotFrontage, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$LotFrontage, na.rm = T),lwd = 1)
+```
+
+Variabile Quantitativa che salva la quantità di strada a contatto con la proprietà.
+Sono presenti in questo caso 259 valori mancanti.
+I valori di essa vanno da un minimo di 21 ad un massimo di 313. Con questi ultimi che sono valori estremi per questa variabile essendo ogni altro valore assunto da essa minore di 200.
+Media e Mediana sono molto vicine, entrambe a circa 70. Si nota infatti che la Skewness è in questo caso molto bassa a 2.1 . Dal grafico vediamo che il picco di valori si trova nel range 55-80, che contiene sia il primo che terzo Quantile.
+
+
+#### Variabile `LotArea`
+
+```{r}
+display_summary_and_var(case$LotArea)
+hist(case$LotArea, probability = T, breaks = c(1250*0:176)+1000,col = "gray", main = "Area della Proprietà")
+abline(v = median(case$LotArea, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$LotArea, na.rm = T),lwd = 1)
+
+#LotArea: Senza valori estremi 
+Area <- case[case$LotArea < 100000,]
+hist(Area$LotArea, probability = T, breaks = c(1250*0:60)+1000,col = "gray", main = "Area della Proprietà")
+abline(v = median(Area$LotArea, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(Area$LotArea, na.rm = T),lwd = 1)
+```
+
+Variabile Quantitativa che indica l'area della proprietà. Ha un range di valori molto alto dovuto principalmente alla presenza di valori estremi che arrivano ad un massimo di 2.152450e+05. 
+La gran parte delle osservazioni rimane sotto i 25000 metri quadrati con un alta concentrazione tra 7500 e 11600. Media e mediana molto vicine tra loro e skewness, infatti, molto bassa soprattutto rispetto ai valori che assume "LotArea". Si nota che i valori estremi che va variabile assume sono riflessi in una varianza e deviazione standard elevati.
+
+
+#### Variabile `Street`
+
+```{r}
+case$Street <- factor(replace(case$Street, is.na(case$Street), "Non Presente"))
+display_table(case$Street, "Tipo di strada di accesso")
+```
+
+Variabile Qualitativa che indica il tipo di strada di accesso alla proprietà.
+Sono presenti solo due tipi di Strada di accesso e il 99.59% delle osservazioni è del tipo "Pave".
+
+
+#### Variabile `Alley`
+
+```{r}
+case$Alley <- factor(replace(case$Alley, is.na(case$Alley), "Non Presente"))
+display_table(case$Alley, "Tipo di Vicolo di accesso")
+```
+
+Variabile Qualitativa che indica il tipo del vicolo di accesso alla proprietà.
+Vediamo che il 93.77% delle abitazioni non presenta un vicolo di accesso mentre le restanti lo hanno o pavimentato o in ghiaia.
+
+
+#### Variabile `LotShape`
+
+```{r}
+case$LotShape <- factor(replace(case$LotShape, is.na(case$LotShape), "Non Presente"))
+case$LotShape <- ordered(case$LotShape,levels = c("Reg","IR1","IR2","IR3"))
+display_table(case$LotShape, "Forma della Proprietà")
+```
+
+Variabile Qualitativa che descrive la forma generale della proprietà. Sono presenti 4 tipi di forma che vanno da quella "Regolare" a "IR3", ovvero altamente irregolare.
+La forma più comune è quella "Regolare" che viene osservata più spesso delle tre forme Irregolari combinate.
+
+
+#### Variabile `LandContour`
+
+```{r}
+case$LandContour <- factor(replace(case$LandContour, is.na(case$LandContour), "Non Presente"))
+case$LandContour <- ordered(case$LandContour,levels = c("Low","Lvl","Bnk","HLS"))
+display_table(case$LandContour,"Rilievi")
+```
+
+Variabile Qualitativa che descrive i rilievi presenti sulla proprietà dividendoli in 4 possibili categorie.
+Questo è un alto caso in cui una di queste categorie comprende un numero estremamente elevato di osservazioni rispetto alle altre. "Lvl", ovvero "a livello con il terreno", comprende quasi il 90% delle proprietà osservate.
+
+
+#### Variabile `Utilities`
+
+```{r}
+case$Utilities <- factor(replace(case$Utilities, is.na(case$Utilities), "Non Presente"))
+display_table(case$Utilities, "Utenze Domestiche")
+```
+
+Variabile qualitativa che descrive le utenze domestiche presenti nella proprietà.         
+Dei 4 valori della variabile possibili sono solo presenti "AllPub" e "NoSeWa". 
+"NoSeWa" è stata inoltre osservata solo una volta (<0.1%)
+
+
+#### Variabile `LotConfig`
+
+```{r}
+case$LotConfig <- factor(replace(case$LotConfig, is.na(case$LotConfig), "Non Presente"))
+case$LotConfig <- ordered(case$LotConfig, levels = c("Inside","Corner","CulDSac","FR2","FR3"))
+display_table(case$LotConfig, "Particella catastale")
+```
+
+Variabile Qualitativa che descrive il tipo della particella catastale.
+"Inside" è il valore più comune della variabile e corrisponde al 72% delle osservazioni totali. "FR3", invece, è presente solo 4 volte. 
+
+
+#### Variabile `LandSlope`
+
+```{r}
+case$LandSlope <- factor(replace(case$LandSlope, is.na(case$LandSlope), "Non Presente"))
+display_table(case$LandSlope, "Pendenza")
+```
+
+Variabile Qualitativa che descrive la pendenza del terreno su cui è costruita la proprietà dividendola in 3 possibili valori dal Gentile ("Gtl") al Severo ("Sev").
+Il valore più visto è "Gtl" con il 94.65% delle osservazioni.
+
+
+#### Variabile `Neighborhood`
+
+```{r}
+case$Neighborhood <- factor(replace(case$Neighborhood, is.na(case$Neighborhood), "Non Presente"))
+display_table(case$Neighborhood,"Locazione")
+```
+
+Variabile Qualitativa che descrive la locazione della proprietà in Ames city.
+In questo caso abbiamo 25 possibili valori per questa variabile con NAmes il più frequente a 15.43% delle osservazioni e Blueste il meno a sole 2 ossecrazioni (<0.2%).
+
+
+#### Variabile `Condition1`
+
+```{r}
+case$Condition1 <- factor(replace(case$Condition1, is.na(case$Condition1), "Non Presente"))
+display_table(case$Condition1, "Punti di Interesse 1")
+```
+
+Variabile Qualitativa che indica se la proprietà è vicina a uno tra 8 tipi di punti di interesse o se è lontana da tutti essi, questo è il caso "Norm".
+Il valore più comune è "Norm" con l'86.3% dei dati osservati.
+
+
+#### Variabile `Condition2`
+
+```{r}
+case$Condition2 <- factor(replace(case$Condition2, is.na(case$Condition2), "Non Presente"))
+display_table(case$Condition2, "Punti di Interesse 2")
+```
+
+Variabile Qualitativa che indica la vicinanza della abitazione a ulteriori punti di interesse.
+"Norm" rimane il valore della variabile più comune con adesso il 98.97% di tutte le osservazioni mentre gli altri valori ne hanno, in totale, solo 15. 
+Essedo presenti solo 2 variabili che mi indicano la vicinanza a punti di interesse,non possiamo sapere se le 15 abitazioni che sono vicine a 2 punti di interesse non siano vicine anche a 3 o più di essi.
+
+
+#### Variabile `BldgType`
+
+```{r}
+case$BldgType <- factor(replace(case$BldgType, is.na(case$BldgType), "Non Presente"))
+display_table(case$BldgType, "Tipo di Abitazione")
+```
+
+Variabile Qualitativa che descrive che tipo di abitazione è quella in vendita.
+Il gruppo più comune è quello delle abitazioni da Singola Famiglia ("1Fam") con l'83.56% delle osservazioni totali
+
+
+#### Variabile `HouseStyle`
+
+```{r}
+case$HouseStyle <- factor(replace(case$HouseStyle, is.na(case$HouseStyle), "Non Presente"))
+case$HouseStyle <- ordered(case$HouseStyle, levels = c("1Story","1.5Fin","1.5Unf","2Story","2.5Fin","2.5Unf","SFoyer","SLvl"))
+display_table(case$HouseStyle, "Stile della casa")
+```
+
+Variabile Qualitativa che descrive lo stile o tipo dell’edificio.
+Vediamo che edifici con mezzi piani sono molto più rari e che gli edifici con meno piani sono più numerosi. La moda è infatti il gruppo "1Story", al 49.72% delle osservazioni totali, seguito da "2Story", al 30.47%. "2.5Fin" e "2.5Unf" sono invece i più rari.
+
+
+#### Variabile `OverallQual`
+
+```{r}
+display_summary_and_var(case$OverallQual)
+hist(case$OverallQual, probability = T,breaks= c(0:10)+0.5,col = "gray", main = "Qualità della casa")
+abline(v = median(case$OverallQual, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$OverallQual, na.rm = T),lwd = 1)
+```
+
+Variabile Quantitativa che descrive la qualità dei materiali e della finitura della casa in una scala di interi che va da 1 a 10. Può anche essere vista come una variabile Qualitativa ordinabile divisa in 10 classi.
+Si nota che la maggior parte delle case si trova della fascia che va da "Avarege" (5) a "Good" (7). Con media e mediana entrambe vicino a "Above Avarege" (6). La Skewness è infatti bassa a 0.216721.
+
+
+#### Variabile `OverallCond`
+
+```{r}
+display_summary_and_var(case$OverallCond)
+hist(case$OverallCond, probability = T,breaks= c(0:10)+0.5,col = "gray", main = "Condizione della casa")
+abline(v = median(case$OverallCond, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$OverallCond, na.rm = T),lwd = 1)
+```
+
+"OverallCond" è una Variabile Quantitativa che descrive le condizioni in cui si trova l'abitazione in una scala di interi che va da 1 a 10. Come "OverallQual", può anche essere vista come una variabile Qualitativa ordinabile divisa in 10 classi.
+Si vede anche dal grafico che la moda è "5" con più del 50%delle osservazioni.
+Si nota che media e mediana non sono veramente vicine, infatti la Skewness è 0.6923552 che, considerato che il range di valori è 1-10, non è bassa.
+
+
+#### Variabile `YearBuilt`
+
+```{r}
+display_summary_and_var(case$YearBuilt)
+hist(case$YearBuilt, probability = T,breaks= c(5*0:28)+1870,col = "gray", main = "Anno di Costruzione")
+abline(v = median(case$YearBuilt, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$YearBuilt, na.rm = T),lwd = 1)
+```
+
+Variabile Quantitativa che descrive l'anno in cui le abitazioni sono state costruite.
+Il range va dal 1872 fino il 2010 con una quantità di case costruite maggiore all'avanzare degli anni.
+Si nota che il picco è avvenuto nei primi anni del 2000 e che tra il 1980 e 1990, durante la recessione globale, è avvenuto un forte calo nella costruzione di nuovi edifici. Questo anche maggiore dei cali avvenuti durante le guerre mondiali.
+Media e Mediana sono vicine mentre la Deviazione Standard e Varianza non sono basse.
+
+
+#### Variabile `YearRemodAdd`
+
+```{r}
+display_summary_and_var(case$YearRemodAdd)
+hist(case$YearRemodAdd, probability = T,col = "gray", main = "Anno di Ammodernamento")
+abline(v = median(case$YearRemodAdd, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$YearRemodAdd, na.rm = T),lwd = 1)
+```
+
+La Variabile è quantitativa e indica l'anno di ammodernamento dell'abitazione
+si nota che la media e la varianza sono diverse con una differenza di 10 anni
+
+
+#### Variabile `RoofStyle`
+
+```{r}
+case$RoofStyle <- factor(case$RoofStyle)
+display_table(case$RoofStyle, "RoofStyle")
+```
+
+Variabile qualitativa categoriale con 6 diverse categorie, 
+la maggior parte delle case nel campione presenta un tetto di tipo "Gable"
+
+
+#### Variabile `RoofMatl`
+
+```{r}
+case$RoofMatl <- factor(case$RoofMatl)
+display_table(case$RoofMatl, "RoofMatl")
+```
+
+Variabile qualitativa categoriale con 8 diverse categorie, la maggior parte delle case (ben il 98.2%) nel campione presenta il tetto in materiale "CompShg" con le frequenze percentuali degli altri materiali che non raggiungono nemmeno l'1%
+
+
+#### Variabile `Exterior1st`
+
+```{r}
+case$RoofMatl <- factor(case$Exterior1st)
+display_table(case$Exterior1st, "Frequenza materiale esterno")
+```
+
+Variabile qualitativa categoriale con 15 diverse categorie, la maggior parte delle case nel campione presenta una finitura esterna in vinile che ha una frequenza di 35.3%
+
+
+#### Variabile `Exterior2nd`
+
+```{r}
+case$RoofMatl <- factor(case$Exterior2nd)
+display_table(case$Exterior2nd, "Frequenza materiale esterno")
+```
+
+Variabile qualitativa categoriale con 16 diverse categorie, la maggior parte delle case nel campione presenta una seconda finitura esterna in vinile che ha una frequenza di 34.5%
+
+
+#### Variabile `MasVnrType`
+
+```{r}
+case$RoofMatl <- factor(case$MasVnrType)
+display_table(case$MasVnrType, "MasVnrType")
+```
+
+Variabile qualitativa categoriale con 4 diverse categorie, la maggior parte delle case nel campione (59.5%) non ha nessun tipo di rivestimento in  muratura esterno mentre il materiale più utilizzato è il Brick Face
+
+
+#### Variabile `MasVnrArea`
+
+```{r}
+display_summary_and_var(case$MasVnrArea)
+hist(case$MasVnrArea, freq = F, main = "distribuzione area finitura")
+# senza gli zeri
+MasVnrArea0 <- na.omit(case[case$MasVnrArea > 0, "MasVnrArea"])
+display_summary_and_var(MasVnrArea0)
+hist(MasVnrArea0, breaks = 16, freq = F, main = "distribuzione area finitura non nulla")
+boxplot(MasVnrArea0, horizontal = T)
+```
+
+Si nota che la maggior parte delle case non ha una finitura esterna i seguenti grafici indicano la distribuzione dell'area del MasVnr delle case che effettivamente hanno una MasVnr.
+Si nota una coda destra piuttosto lunga, con un numero valori outlier elevato infatti l'indice di asimmetria è di 2.088.
+
+
+#### Variabile `ExterQual`
+
+```{r}
+case$ExterQual <- factor(case$ExterQual, levels = c("Fa","TA","Gd","Ex"))
+levels(case$ExterQual) <- c("Fair","Average/Typical","Good","Excellent")
+display_table(case$ExterQual, "qualità del materiale esterno")
+```
+
+variabile qualitativa categoriale con 4 diverse categorie, si è scelto di riordinare i fattori nel seguente ordine: "Fair","Average/Typical","Good","Excellent" la maggior parte delle case nel campione (62%) ha qualità dei materiali esterni Average/Typical
+
+
+#### Variabile `ExterCond`
+
+```{r}
+case$ExterCond <- factor(case$ExterCond, levels = c("Po","Fa","TA","Gd","Ex"))
+levels(case$ExterCond) <- c("Poor","Fair","Average/Typical","Good","Excellent")
+display_table(case$ExterCond, "condizione del materiale esterno")
+```
+
+Analogamente alle variabili precedenti, variabile qualitativa categoriale con 5 diverse categorie, si è scelto di riordinare i levels nel seguente ordine: "Poor","Fair","Average/Typical","Good","Excellent" la maggior parte delle case nel campione (87.8%) ha condizione dei materiali esterni Average/Typical
+
+
+#### Variabile `Foundation`
+
+```{r}
+case$Foundation <- factor(case$Foundation)
+display_table(case$Foundation, "materiale fondamenta")
+```
+
+Variabile qualitativa categoriale con 6 diverse categorie, la maggior parte delle case nel campione (44.3%) ha le fondamenta in Poured Contrete
+
+
+#### Variabile `BsmtQual`
+
+```{r}
+case$BsmtQual <- factor(case$BsmtQual, levels = c("Po","Fa","TA","Gd","Ex"))
+levels(case$BsmtQual) <- c("Poor","Fair","Average/Typical","Good","Excellent")
+display_table(case$BsmtQual, "altezza del seminterrato")
+```
+
+Analogamente alle variabili precedenti, variabile qualitativa categoriale con 5 diverse categorie,  si è scelto di riordinare i levels nel seguente ordine: "Poor","Fair","Average/Typical","Good","Excellent" la maggior parte delle case nel campione (45.6%) ha altezza del seminterrato Average/Typical
+
+
+#### Variabile `BsmtCond`
+
+```{r}
+case$BsmtCond <- factor(case$BsmtCond, levels = c("Po","Fa","TA","Gd","Ex"))
+levels(case$BsmtCond) <- c("Poor","Fair","Average/Typical","Good","Excellent")
+display_table(case$BsmtCond, "condizioni del seminterrato")
+```
+
+Analogamente alle variabili precedenti, variabile qualitativa categoriale con 5 diverse categorie,  si è scelto di riordinare i levels nel seguente ordine: "Poor","Fair","Average/Typical","Good","Excellent" la maggior parte delle case nel campione (ben il 92.1%) ha condizione del seminterrato Average/Typical
+
+
+#### Variabile `BsmtExposure`
+
+```{r}
+case$BsmtExposure <- factor(case$BsmtExposure, levels = c("No", "Mn", "Av", "Gd"))
+display_table(case$BsmtExposure, "esposizione del seminterrato")
+```
+
+Variabile qualitativa categoriale con 4 diverse categorie, la maggior parte delle case nel campione (67%) non ha il seminterrato esposte all'esterno
+
+
+#### Variabile `BsmtFinType1`
+
+```{r}
+case$BsmtFinType1 <- factor(case$BsmtFinType1, levels = c("Unf", "LwQ", "Rec", "BLQ", "ALQ", "GLQ"))
+display_table(case$BsmtFinType1, "finitura dell'area del seminterrato")
+```
+
+Variabile qualitativa categoriale con 6 diverse categorie, la maggior parte delle case nel campione (30.2%) ha il piano seminterrato non finito (grezzo) seguito da una percentuale del 29.4% di case che hanno il seminterrato abitabile con una Buona qualità.
+
+
+#### Variabile `BsmtFinSF1`
+
+```{r}
+display_summary_and_var(case$BsmtFinSF1)
+hist(case$BsmtFinSF1, freq = F, main = "distribuzione area finitura")
+
+## si nota che la maggior parte delle case ha il seminterrato incompleto
+# i seguenti grafici indicano la distribuzione dell'area di seminterrato delle case che effettivamente hanno il seminterrato completo
+
+BsmtFinSF1_0 <- na.omit(case[case$BsmtFinSF1 > 0 & case$BsmtFinSF1 < max(case$BsmtFinSF1), "BsmtFinSF1"])
+display_summary_and_var(BsmtFinSF1_0)
+hist(BsmtFinSF1_0, freq = F, main = "distribuzione senza valore outlier")
+curve(dnorm(x,mean(BsmtFinSF1_0), sd(BsmtFinSF1_0)),add = T)
+boxplot(BsmtFinSF1_0, horizontal = T)
+```
+
+Si nota una coda destra piuttosto lunga, con un numero valori outlier elevato infatti l'indice di asimmetria è di 2.298795 in particolare un valore massimo è di molto superiore alla media togliendo il valore elevato si comprende che la distribuzione segue l'andmento di una gaussiana
+
+
+#### Variabile `BsmtFinType2`
+
+```{r}
+case$BsmtFinType2 <- factor(case$BsmtFinType2, levels = c("Unf", "LwQ", "Rec", "BLQ", "ALQ", "GLQ"))
+display_table(case$BsmtFinType2, "finitura dell'area del seminterrato")
+```
+
+Variabile qualitativa categoriale con 6 diverse categorie, analogamente alla precedente
+
+
+#### Variabile `BsmtFinSF2`
+
+```{r}
+display_summary_and_var(case$BsmtFinSF2)
+hist(case$BsmtFinSF2, freq = F, main = "distribuzione area finitura")
+
+## si nota che la maggior parte delle case ha il seminterrato incompleto
+# i seguenti grafici indicano la distribuzione dell'area di seminterrato delle case che effettivamente hanno il seminterrato completo
+
+BsmtFinSF2_0 <- na.omit(case[case$BsmtFinSF2 > 0 & case$BsmtFinSF2 < max(case$BsmtFinSF2), "BsmtFinSF1"])
+display_summary_and_var(BsmtFinSF2_0)
+hist(BsmtFinSF2_0, freq = F, main = "distribuzione senza valore outlier")
+curve(dnorm(x,mean(BsmtFinSF2_0), sd(BsmtFinSF2_0)),add = T)
+boxplot(BsmtFinSF2_0, horizontal = T)
+```
+
+Variabile analoga alla precedente
+
+
+#### Variabile `BsmtUnfSF`
+
+```{r}
+display_summary_and_var(case$BsmtUnfSF)
+hist(case$BsmtUnfSF, freq = F, main = "distribuzione superficie incompleta seminterrato")
+```
+
+Si nota una coda destra leggermente allungata, con un numero valori outlier elevato infatti l'indice di asimmetria è di 0.919
+
+
+#### Variabile `TotalBsmtSF`
+
+```{r}
+display_summary_and_var(case$TotalBsmtSF)
+hist(case$TotalBsmtSF, freq = F, main = "distribuzione superficie incompleta seminterrato")
+boxplot(case$TotalBsmtSF, horizontal = T)
+#
+superficie0 <- na.omit(case[case$TotalBsmtSF < max(case$TotalBsmtSF), "TotalBsmtSF"])
+display_summary_and_var(superficie0)
+hist(superficie0, freq = F, main = "distribuzione senza valore outlier")
+boxplot(superficie0, horizontal = T)
+```
+
+Si nota una coda destra piuttosto lunga, con un numero valori outlier elevato, in particolare un valore massimo molto elevato e distante dalla media per una migliore visualizzaœone del grafico rimuovo questo valore
+
+
+#### Variabile `Heating`
+
+```{r}
+case$Heating <- factor(case$Heating)
+display_table(case$Heating, "Frequenza tipologia di riscaldamento")
+```
+
+Variabile qualitativa categoriale con 6 diverse categorie, la maggior parte delle case nel campione (ben il 97.8%) ha utilizza un sistema di riscaldamento di tipo "Gas forced warm air furnace"
+
+
+#### Variabile `HeatingQC`
+
+```{r}
+case$HeatingQC <- factor(case$HeatingQC, levels = c("Po","Fa","TA","Gd","Ex"))
+levels(case$HeatingQC) <- c("Poor","Fair","Average/Typical","Good","Excellent")
+display_table(case$HeatingQC, "Qualità e condizione del riscaldamento")
+```
+
+analogamente alle variabili precedenti, variabile qualitativa categoriale con 5 diverse categorie, si è scelto di riordinare i levels nel seguente ordine: "Poor","Fair","Average/Typical","Good","Excellent" la maggioranza delle case nel campione (50.7%) ha una eccellente qualità e condizione del riscaldamento
+
+
+#### Variabile `CentralAir`
+
+```{r}
+case$CentralAir <- factor(case$CentralAir)
+display_table(case$CentralAir, titolo = 'central air conditioning')
+```
+
+Si osserva che il 93% circa delle case ha il central air conditioning.
+
+
+#### Variabile `Electrical`
+
+```{r}
+case$Electrical <- factor(case$Electrical)
+display_table(case$Electrical, titolo = 'sistema elettrico')
+```
+
+Vi sono 4 tipi diversi, il 91% delle case ha il circuito standard, il restante 9% si dovide negli altri tre tipi. il 6% è rappresentato dal tipo FuseA
+
+
+#### Variabile `X1stFlrSF`
+
+```{r}
+display_summary_and_var(case$X1stFlrSF)
+hist(case$X1stFlrSF, probability = T, main = 'superficie primo piano')
+```
+
+La maggior parte delle case si trova nel range 800-1200 piedi quadrati
+
+
+#### Variabile `X2ndFlrSF`
+
+```{r}
+display_summary_and_var(case$X2ndFlrSF)
+hist(case$X2ndFlrSF, probability = T, main = 'superficie secondo piano')
+# solo le case che hanno solo il secondo piano:
+display_summary_and_var(subset(case$X2ndFlrSF, case$X2ndFlrSF != 0))
+hist(subset(case$X2ndFlrSF, case$X2ndFlrSF != 0), main = 'istogramma case con un secondo piano', probability = T)
+```
+
+La maggior parte delle case (il 56 %) non possiede un secondo piano, prendendo in considerazione solo quelle che lo hanno osserviamo una media di 776 ft^2 e una mediana di 776 ft^2
+
+
+#### Variabile `LowQualFinSF`
+
+```{r}
+display_summary_and_var(case$LowQualFinSF)
+hist(case$LowQualFinSF, prob = T, main = 'low quality finished square feet')
+length(case$LowQualFinSF[case$LowQualFinSF == 0])
+```
+
+Si osserva che 1434 case su 1460 hanno 0 low quality finished square feet
+
+
+#### Variabile `GrLivArea`
+
+```{r}
+display_summary_and_var(case$GrLivArea)
+hist(case$GrLivArea, probability = T)
+boxplot(case$GrLivArea)
+points(mean(case$GrLivArea), col = 'red')
+```
+
+Usando il boxplot vediamo che la media è vicina alla mediana (intorno a 1500) e che vi è una bassa varianza, tuttavia sono presenti molti outliers che hanno più 3000 piedi quadrati di superficie abitablie sopra il suolo
+
+
+#### Variabile `BsmtFullBath`
+
+```{r}
+case$BsmtFullBath <- factor(case$BsmtFullBath)
+display_table(case$BsmtFullBath, titolo = 'Basement full bath')
+```
+
+Presenta solo i caratteri 0, 1 , 2 e 3. il 59% delle case ha 0, il 40% 1
+
+
+#### Variabile `BsmtHalfBath`
+
+```{r}
+case$BsmtHalfBath <- factor(case$BsmtHalfBath)
+display_table(case$BsmtHalfBath, titolo = 'Basement half bath')
+```
+
+Presenta i caratteri 0, 1 e 2, il 94% delle case ha 0, il 5% 1
+
+
+#### Variabile `BedroomAbvGr`
+
+```{r}
+case$BedroomAbvGr <- factor(case$BedroomAbvGr)
+display_table(case$BedroomAbvGr, titolo = 'Bedroom above grade')
+```
+
+Numero camere sopra il livello del suolo, non include le camerdel basement.
+Il 55% delle case ne ha 3. 
+
+
+#### Variabile `KitchenAbvGr`
+
+```{r}
+case$KitchenAbvGr <- factor(case$KitchenAbvGr)
+display_table(case$KitchenAbvGr, 'Kitchen above grade')
+```
+
+Numero cucine sopra il livello del suolo
+il 95% delle case ne ha 1 
+
+
+#### Variabile `KitchenQual`
+
+```{r}
+case$KitchenQual <- factor(case$KitchenQual, levels = c('Ex', 'Fa', 'Gd', 'TA', 'Po'))
+display_table(case$KitchenQual, titolo = 'Kitchen quality')
+```
+
+Qualità delle cucine.
+Il 50% delle cucine è a un livello Average e il 40% a un livelo good
+
+
+#### Variabile `TotRmsAbvGrd`
+
+```{r}
+display_summary_and_var(case$TotRmsAbvGrd)
+rbind(tot = table(case$TotRmsAbvGrd), prop = prop.table(table(case$TotRmsAbvGrd)))
+boxplot(case$TotRmsAbvGrd)
+```
+
+Totale stanze above grade, non include i bagni
+Il 28% ha 6 stanze
+
+
+#### Variabile `Functional`
+
+```{r}
+case$Functional <- factor(case$Functional)
+display_table(case$Functional, titolo = 'home functionality')
+```
+
+Home functionality
+Il 93% delle case presenta typical functionality.
+
+
+
+#### Variabile `Fireplaces`
+
+```{r}
+case$Fireplaces <- factor(case$Fireplaces)
+display_table(case$Fireplaces, titolo = 'Fireplaces')
+```
+
+Il 47% delle case ha 0, il 44% ha 1
+
+
+#### Variabile `FireplaceQu`
+
+```{r}
+case$FireplaceQu <- factor(case$FireplaceQu)
+display_table(case$FireplaceQu, titolo = 'fireplace quality')
+```
+
+Qualità dei fire places
+Il 41% ha una qualità average, il 49% ha una qualità good
+
+
+#### Variabile `GarageType`
+
+```{r}
+case$GarageType <- factor(case$GarageType)
+display_table(case$GarageType, titolo = 'Garage type')
+```
+
+Posizione garage
+Il 63% ha il garage affiancato alla casa
+
+
+#### Variabile `GarageFinish`
+
+```{r}
+case$GarageFinish <- factor(replace(case$GarageFinish, is.na(case$MSSubClass), "Non Presente"), levels = c('Fin', 'RFn', 'Unf', 'NA'))
+display_table(case$GarageFinish, titolo = 'Garage finish')
+```
+
+Indica lo stato del garage
+Il 43% delle case ha il garage non finito
+
+
+#### Variabile `GarageYrBlt`
+
+```{r}
+hist(case$GarageYrBlt, probability = T,breaks= c(5*0:28)+1870,  main = 'anno costruzione garage')
+abline(v = median(case$GarageYrBlt, na.rm = T),lwd = 1, col = "red")
+abline(v = mean(case$GarageYrBlt, na.rm = T),lwd = 1)
+```
+
+Indica l'anno di costruzione del garage
+Si nota un calo tra il 1980 e il 1990 e un picco nei primi anni del 2000
+
+
+#### Variabile `GarageFinis`
+
+```{r}
+display_table(case$GarageFinis, "finitura interna del garage")
+```
+
+GarageFinis è una variabile categoriale che rappresenta la finitura interna del garage
+si nota che la maggior parte dei garage nel campione è di tipo Unfinished che rappresenta il 43%
+
+
+#### Variabile `GarageCars`
+
+```{r}
+display_summary_and_var(case$GarageCars)
+hist(case$GarageCars, main = "Distribuzione di GarageCars", xlab = "Numero di auto nel garage")
+boxplot(case$GarageCars, main = "Boxplot di GarageCars", ylab = "Numero di auto nel garage", horizontal = T)
+```
+
+La variabile GarageCars rappresenta il numero di auto che possono essere alloggiate nel garage.
+Il boxplot mostra che la maggior parte delle case ha uno o due posti auto nel garage, con poche eccezioni che hanno più di due posti auto.
+L'istogramma mostra una distribuzione simile, con una concentrazione intorno ai valori bassi e qualche outlier con valori più alti.
+L'analisi della skewness suggerisce una leggera coda a destra nella distribuzione, indicando una maggior concentrazione di case con un numero inferiore di posti auto nel garage.
+
+
+#### Variabile `GarageArea`
+
+```{r}
+display_summary_and_var(case$GarageArea)
+hist(case$GarageArea, main = "Distribuzione di GarageArea", xlab = "Area del garage in piedi quadrati")
+boxplot(case$GarageArea, main = "Boxplot di GarageArea", ylab = "Area del garage in piedi quadrati", horizontal = T)
+```
+
+La variabile GarageArea rappresenta l'area del garage in piedi quadrati.
+Il boxplot mostra una vasta gamma di aree del garage, con alcune case che hanno garage molto grandi rispetto alla media.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle aree più basse.
+Ciò suggerisce che la maggior parte delle case ha garage di dimensioni moderate, ma ci sono alcune case con garage molto grandi.
+
+
+#### Variabile `GarageQual`
+
+```{r}
+display_table(case$GarageQual, "GarageQual")
+```
+
+La variabile GarageQual rappresenta la qualità del garage.
+Il barplot mostra la distribuzione delle diverse categorie di qualità del garage.
+La maggior parte delle case ha una qualità media o tipica del garage, con poche eccezioni che hanno una qualità eccellente o scarsa.
+
+
+#### Variabile `GarageCond`
+
+```{r}
+display_table(case$GarageCond, "GarageCond")
+```
+
+La variabile GarageCond rappresenta le condizioni del garage.
+Il barplot mostra la distribuzione delle diverse categorie di condizioni del garage.
+La maggior parte delle case ha condizioni medie o tipiche del garage, con poche eccezioni che hanno condizioni eccellenti o pessime.
+
+
+#### Variabile `PavedDrive`
+
+```{r}
+display_table(case$PavedDrive, "PavedDrive")
+```
+
+La variabile PavedDrive indica se la via di accesso è pavimentata.
+Il barplot mostra la distribuzione delle diverse categorie di tipi di via di accesso.
+La maggior parte delle case ha una via di accesso pavimentata, con poche eccezioni che hanno un accesso parzialmente pavimentato o non pavimentato.
+
+
+#### Variabile `WoodDeckSF`
+
+```{r}
+display_summary_and_var(case$WoodDeckSF)
+hist(case$WoodDeckSF, main = "Distribuzione di WoodDeckSF", xlab = "Area del deck in legno in piedi quadrati")
+boxplot(case$WoodDeckSF, main = "Boxplot di WoodDeckSF", ylab = "Area del deck in legno in piedi quadrati", horizontal = T)
+```
+
+La variabile WoodDeckSF rappresenta l'area del deck in legno in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del deck in legno, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha deck in legno di dimensioni moderate, ma ci sono alcune case con deck molto grandi.
+L'analisi della skewness mostra una leggera coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del deck in legno.
+
+
+#### Variabile `OpenPorchSF`
+
+```{r}
+display_summary_and_var(case$OpenPorchSF)
+hist(case$OpenPorchSF, main = "Distribuzione di OpenPorchSF", xlab = "Area del portico aperto in piedi quadrati")
+boxplot(case$OpenPorchSF, main = "Boxplot di OpenPorchSF", ylab = "Area del portico aperto in piedi quadrati", horizontal = T)
+
+```
+
+La variabile OpenPorchSF rappresenta l'area del portico aperto in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico aperto, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici aperti di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico aperto.
+
+
+#### Variabile `EnclosedPorch`
+
+```{r}
+display_summary_and_var(case$EnclosedPorch)
+hist(case$EnclosedPorch, main = "Distribuzione di EnclosedPorch", xlab = "Area del portico chiuso in piedi quadrati")
+boxplot(case$EnclosedPorch, main = "Boxplot di EnclosedPorch", ylab = "Area del portico chiuso in piedi quadrati", horizontal = T)
+```
+
+La variabile EnclosedPorch rappresenta l'area del portico chiuso in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico chiuso, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici chiusi di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico chiuso.
+
+
+#### Variabile `X3SsnPorch`
+
+```{r}
+variabile <- case$X3SsnPorch
+display_summary_and_var(case$X3SsnPorch)
+hist(case$X3SsnPorch, main = "Distribuzione di 3SsnPorch", xlab = "Area del portico a tre stagioni in piedi quadrati")
+boxplot(case$X3SsnPorch, main = "Boxplot di 3SsnPorch", ylab = "Area del portico a tre stagioni in piedi quadrati", horizontal = T)
+```
+
+La variabile 3SsnPorch rappresenta l'area del portico a tre stagioni in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico a tre stagioni, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici a tre stagioni di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una leggera coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico a tre stagioni.
+
+
+#### Variabile `ScreenPorch`
+
+```{r}
+variabile <- case$ScreenPorch
+display_summary_and_var(case$ScreenPorch)
+hist(case$ScreenPorch, main = "Distribuzione di ScreenPorch", xlab = "Area del portico dello schermo in piedi quadrati")
+boxplot(case$ScreenPorch, main = "Boxplot di ScreenPorch", ylab = "Area del portico dello schermo in piedi quadrati", horizontal = T)
+```
+
+La variabile ScreenPorch rappresenta l'area del portico dello schermo in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni del portico dello schermo, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha portici dello schermo di dimensioni moderate, ma ci sono alcune case con portici molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse del portico dello schermo.
+
+
+#### Variabile `PoolArea`
+
+```{r}
+display_summary_and_var(case$PoolArea)
+hist(case$PoolArea, main = "Distribuzione di PoolArea", xlab = "Area della piscina in piedi quadrati")
+boxplot(case$PoolArea, main = "Boxplot di PoolArea", ylab = "Area della piscina in piedi quadrati", horizontal = T)
+```
+
+La variabile PoolArea rappresenta l'area della piscina in piedi quadrati.
+Il boxplot mostra una vasta gamma di dimensioni della piscina, con una concentrazione intorno ai valori bassi e alcuni outlier con dimensioni più grandi.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra e un picco intorno alle dimensioni più basse.
+Questo suggerisce che la maggior parte delle case ha piscine di dimensioni moderate, ma ci sono alcune case con piscine molto grandi.
+L'analisi della skewness mostra una coda a destra nella distribuzione, indicando una maggiore concentrazione di case con dimensioni più basse della piscina.
+
+
+#### Variabile `PoolQC`
+
+```{r}
+display_table(case$PoolQC, "qualità della piscina")
+```
+
+La variabile PoolQC rappresenta la qualità della piscina.
+Il barplot mostra la distribuzione delle diverse categorie di qualità della piscina.
+La maggior parte delle case non ha una piscina, con poche eccezioni che hanno piscine di alta qualità.
+
+
+#### Variabile `Fence`
+
+```{r}
+display_table(case$Fence, "qualità del recinto")
+```
+
+La variabile Fence rappresenta la qualità del recinto.
+Il barplot mostra la distribuzione delle diverse categorie di qualità del recinto.
+La maggior parte delle case non ha un recinto, mentre una piccola parte ha recinti di qualità variabile.
+
+
+#### Variabile `MiscFeature`
+
+```{r}
+display_table(case$MiscFeature, "altre caratteristiche extra")
+```
+
+La variabile MiscFeature rappresenta altre caratteristiche extra presenti nelle proprietà.
+Il barplot mostra la distribuzione delle diverse categorie di caratteristiche extra.
+La maggior parte delle case non ha caratteristiche extra, con poche eccezioni che includono strutture come ripostigli, recinti e altri.
+
+
+#### Variabile `MiscVal`
+
+```{r}
+print(display_summary_and_var(case$MiscVal))
+hist(case$MiscVal, main = "Distribuzione di MiscVal", xlab = "Valore delle caratteristiche extra")
+boxplot(case$MiscVal, main = "Boxplot di MiscVal", ylab = "Valore delle caratteristiche extra", horizontal = T)
+```
+
+La variabile MiscVal rappresenta il valore delle caratteristiche extra.
+Il boxplot mostra che la maggior parte delle case ha un valore extra basso, con alcune eccezioni che hanno un valore extra più alto.
+L'istogramma e la densità dei dati indicano una distribuzione asimmetrica, con una coda a destra.
+Questo suggerisce che la maggior parte delle case ha valori extra di basso valore, ma ci sono alcune case con valori extra molto alti.
+
+
+#### Variabile `MoSold`
+
+```{r}
+display_summary_and_var(case$MoSold)
+hist(case$MoSold, main = "Distribuzione di MoSold", xlab = "Mese di vendita")
+boxplot(case$MoSold, main = "Boxplot di MoSold", ylab = "Mese di vendita", horizontal = T)
+```
+
+La variabile MoSold rappresenta il mese in cui la casa è stata venduta.
+Il boxplot mostra che le vendite sono distribuite durante tutto l'anno, con picchi nei mesi di primavera e estate.
+L'istogramma mostra che i mesi con il maggior numero di vendite sono giugno, luglio e agosto.
+L'analisi della skewness indica una distribuzione abbastanza uniforme delle vendite durante l'anno.
+
+
+#### Variabile `YrSold`
+
+```{r}
+display_summary_and_var(case$YrSold)
+hist(case$YrSold, main = "Distribuzione di YrSold", xlab = "Anno di vendita")
+boxplot(case$YrSold, main = "Boxplot di YrSold", ylab = "Anno di vendita", horizontal = T)
+```
+
+La variabile YrSold rappresenta l'anno in cui la casa è stata venduta.
+Il boxplot mostra che le vendite sono distribuite uniformemente tra gli anni presenti nel dataset.
+L'istogramma mostra che c'è una leggera diminuzione del numero di vendite negli anni più recenti.
+L'analisi della skewness indica una distribuzione relativamente uniforme delle vendite negli anni considerati.
+
+
+#### Variabile `SaleType`
+
+```{r}
+display_table(case$SaleType, "tipo di vendita della casa")
+```
+
+La variabile SaleType rappresenta il tipo di vendita della casa.
+# Il barplot mostra la distribuzione delle diverse categorie di tipi di vendita.
+# La maggior parte delle case è venduta con una vendita normale, con altre categorie come vendita in contanti, vendita con finanziamento, e altre meno comuni.
+
+
+#### Variabile `SaleCondition`
+
+```{r}
+display_table(case$SaleCondition, "condizioni di vendita")
+```
+
+La variabile SaleCondition rappresenta le condizioni di vendita della casa.
+Il barplot mostra la distribuzione delle diverse categorie di condizioni di vendita.
+La maggior parte delle case è venduta in condizioni normali, con altre categorie come vendite anomale, vendite parziali e altre meno comuni.
+
+
+## Dataset - House Prices
+### Analisi bivariata
+#### Variabile `MSSubClass`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$MSSubClass))
+ggplot(case, aes(x = factor(MSSubClass), y = SalePrice, fill = factor(MSSubClass))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "MSSubClass")
+```
+
+Visto che stiamo lavorando con la variabile "SalePrice" come target avremo in generale un valore molto alto per la devianza. La devianza totale è infatti 9.207911e+12 che in questo caso vediamo essere principalmente Devianza "Entro". 
+Eta Quadro è infatti 0.246 il che mi conferma che la variazione delle medie tra i gruppi è meno marcata della variazione dei valori nei gruppi stessi.
+Il grafico ci mostra infatti che tutte le medie dei gruppi sono vicine alla media generale mentre classi come la "60" e la "20" contengono anche valori di "SalePrice" decisamente elevati.
+
+
+#### Variabile `MSZoning`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$MSZoning))
+ggplot(case, aes(x = factor(MSZoning), y = SalePrice, fill = factor(MSZoning))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "MSZoning")
+```
+
+In relazione a "SalePrice" abbiamo quasi esclusivamente devianza "Entro", Eta Quadro è infatti basso.
+Questo perché le medie dei gruppi sono tutte vicine a quella generale e per via del fatto che i valori estremi di "RL" incidono molto sul calcolo della devianza essendo esso il gruppo più comune.
+Vediamo che il gruppo "C" è quello con la media dei prezzi più bassa e che nessunodi essi supera la media generale. 
+
+
+#### Variabile `LotFrontage`
+
+```{r}
+cor(case$LotFrontage, case$SalePrice, use="complete.obs")
+model <- lm(SalePrice ~ LotFrontage, data = case)
+summary(model)
+ggplot(case, aes(x = LotFrontage, y = SalePrice)) + geom_point(na.rm = T) + geom_smooth(method = "lm", se = FALSE, na.rm = T)
+#Senza i valori estremi
+Frontage <- case[case$LotFrontage < 200,]
+cor(Frontage$LotFrontage, Frontage$SalePrice, use="complete.obs")
+model <- lm(SalePrice ~ LotFrontage, data = Frontage)
+summary(model)
+ggplot(Frontage, aes(x = LotFrontage, y = SalePrice)) + geom_point(na.rm = T) + geom_smooth(method = "lm", se = FALSE, na.rm = T)
+```
+
+Con target la variabile "SalePrice" vediamo che il coefficiente di correlazione è 0.3517991, vediamo quindi una correlazione bassa, ma comunque presente, tra le due variabili.
+R Quadro è invece molto basso e infatti vediamo una dispersione molto ampia dei punti. 
+Anche rimuovendo i valori più estremi la correlazione cambia poco.
+
+
+#### Variabile `LotArea`
+
+```{r}
+cor(case$LotArea, case$SalePrice, use="complete.obs")
+model <- lm(SalePrice ~ LotArea, data = case)
+summary(model)
+ggplot(case, aes(x = LotArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) 
+#LotArea Senza Valori Estremi:
+Area <- case[case$LotArea < 100000,]
+cor(Area$LotArea, Area$SalePrice, use="complete.obs")
+model <- lm(SalePrice ~ LotArea, data = Area)
+summary(model)
+ggplot(Area, aes(x = LotArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+La correlazione lineare con "SalePrice" è positiva ma bassa ed R Quadro pure ha un valore molto vicino allo zero. 
+Rimuovendo i valori di "LotArea" maggiori di 100000 vediamo che la correlazione sale di quasi 0.10 . C'è quindi una correlazione lineare molto più marcata una volta rimossi i 4 dati più estremi. 
+Questa è un osservazione importante perché, anche se il numero di queste osservazioni non è elevato, ci si aspetterebbe che abitazioni con Aree sopra i 100000 metri quadrati fossero estremamente più costose rispetto alle altre.
+
+
+#### Variabile `Street`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$Street))
+ggplot(case, aes(x = factor(Street), y = SalePrice, fill = factor(Street))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Street")
+```
+
+Visto che il tipo "Grvl" corrisponde a sole 6 osservazioni, questo pesa molto poco sulla devianza che infatti è quasi solamente composta di devianza "Entro".
+L'indice Eta Quadro è infatti uguale a 0.001683915 (la devianza "tra" è inferiore allo 0.2% di quella totale). 
+
+
+#### Variabile `Alley`
+
+```{r}
+Alley_F <- factor(replace(case$Alley, is.na(case$Alley), "Non Presente"))
+calcola_devianza(case$SalePrice, Alley_F)
+ggplot(case, aes(x = Alley_F, y = SalePrice, fill = Alley_F)) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Alley")
+```
+
+Come per la variabile precedente, abbiamo un gruppo drasticamente più numeroso rispetto gli altri.
+La devianza è quindi principalmente composta dalla devianza "Entro" ed Eta Quadro è infatti 0.02040754. Si nota che tutti i valori più elevati di "SalePrice" si trovano all'interno del gruppo "Non Presente".
+
+
+#### Variabile `LotShape`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$LotShape))
+ggplot(case, aes(x = ordered(factor(LotShape),levels = c("Reg","IR1","IR2","IR3")), y = SalePrice, fill = factor(LotShape))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LotShape")
+```
+
+Anche in questo caso la devianza "Tra" è decisamente inferiore rispetto alla "Entro".
+Eta quadro e infatti 0.07637571. In questo caso il valore basso della deviazione "Tra" è dovuto al fatto che i 4 gruppi possiedono tutti medie molto vicine a quella generale.
+
+
+#### Variabile `LandContour`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$LandContour))
+ggplot(case, aes(x = ordered(factor(LandContour),levels = c("Low","Lvl","Bnk","HLS")), y = SalePrice, fill = factor(LandContour))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LandContour")
+```
+
+La devianza "Tra" è ancora molto bassa con Eta quadro uguale 0.02579409. 
+Anche se il gruppo "Lvl" non comprendesse 90% delle osservazioni, tutte le medie dei gruppi sono molto vicine a quella generale. 
+I gruppi hanno range di valori simili fatta eccezione di "Lvl" che possiede anche quelli più estremi.
+
+
+#### Variabile `Utilities`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$Utilities))
+ggplot(case, aes(x = factor(Utilities), y = SalePrice, fill = factor(Utilities))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Utilities")
+```
+
+Il valore della devianza "Tra" è estremamente minore di quella "Entro" ed infatti Eta Quadro è uguale a solo 0.0002048991. 
+L'unico valore del gruppo NoSeWa è inoltre molto vicino alla media generale.
+
+
+#### Variabile `LotConfig`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$LotConfig))
+ggplot(case, aes(x = ordered(factor(LotConfig), levels = c("Inside","Corner","CulDSac","FR2","FR3")), y = SalePrice, fill = factor(LotConfig))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LotConfig")
+```
+
+Un alto caso in cui il valore di Eta Quadro è estremamente basso. 
+I gruppi hanno infatti medie molto vicine a quella generale e anche range simili.
+
+
+#### Variabile `LandSlope`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$LandSlope))
+ggplot(case, aes(x = factor(LandSlope), y = SalePrice, fill = factor(LandSlope))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "LandSlope")
+```
+
+Come in molti casi precedenti la devianza "Entro" è estremamente alta essendo il gruppo "Gtl" disproporzionalmente numeroso. 
+Inoltre, anche le medie di "Mod" e "Sev" sono vicine alla media generale. 
+I valori più alti della variabile prezzo sono presenti nel gruppo "Gtl"
+
+
+#### Variabile `Neighborhood`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$Neighborhood))
+ggplot(case, aes(x = factor(Neighborhood), y = SalePrice, fill = factor(Neighborhood))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Neighborhood")
+```
+
+In questo caso Eta Quadro è uguale a 0.545575 e infatti la devianza di tipo "Tra"è quella prevalente.
+Si può vedere, infatti, che ci sono molti gruppi la cui media è decisamente distante da quella generale.
+Con questa variabile in particolare, il sapere a che gruppo appartiene una certa abitazione può aiutarci a prevedere quale sarà il suo prezzo. 
+Proprietà situate in NoRidge, NridgHt o StoneBr sono, come si può vedere dal grafico, molto più care rispetto la media generale mentre quelle situate in Blueste, MeadowV, BrDale, NPkVill e IDOTRR sono sotto di essa. 
+Bisogna però fare attenzione perché queste 5 hanno un sample size molto basso.
+
+
+#### Variabile `Condition1`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$Condition1))
+ggplot(case, aes(x = factor(Condition1), y = SalePrice, fill = factor(Condition1))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Condition1")
+```
+
+Eta Quadro è molto basso in questo caso, infatti il gruppo "Norm" influisce 
+sproporzionalmente di più sulla devianza rispetto gli altri. Tutti i gruppi hanno
+comunque una media molto vicina a quella generale, il che contribuisce anche 
+questo a tenere bassa da devianza "Tra" e quindi anche Eta Quadro.
+
+
+#### Variabile `Condition2`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$Condition2))
+ggplot(case, aes(x = factor(Condition2), y = SalePrice, fill = factor(Condition2))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "Condition2")
+```
+
+Eta Quadro è anche qui molto basso ed essendo tutti i gruppi diversi da "Norm" formati da al 6 proprietà, non abbiamo una sample size abbastanza grande per fare previsioni sul comportamento della variabile "SalePrice" al variare di "Condition2".
+
+
+#### Variabile `BldgType`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$BldgType))
+ggplot(case, aes(x = factor(BldgType), y = SalePrice, fill = factor(BldgType))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "BldgType")
+```
+
+Eta Quadro è 0.03453403, infatti la devianza "Entro" è quella prevalente. 
+Vediamo che le medie di tutti i gruppi sono vicine a quella generale e che l'unico gruppo con valori che si discostano tanto dalla media è "1Fam".
+
+#### Variabile `HouseStyle`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$HouseStyle))
+ggplot(case, aes(x = ordered(factor(HouseStyle), levels = c("1Story","1.5Fin","1.5Unf","2Story","2.5Fin","2.5Unf","SFoyer","SLvl")), y = SalePrice, fill = factor(HouseStyle))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "HouseStyle")
+```
+
+Eta Quadro, uguale a 0.08631263, è molto basso. 
+Tutte le medie sono infatti molto vicine a quella generale anche se la presenza di ulteriori piani ad un edificio farebbe pensare ad una correlazione stretta con l'aumento di "SalePrice"
+
+
+#### Variabile `OverallQual`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$OverallQual))
+ggplot(case, aes(x = factor(OverallQual), y = SalePrice, fill = factor(OverallQual))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "OverallQual")
+```
+
+Per l'analisi bivariata la consideriamo come una Variabile Qualitativa.
+Abbiamo Eta Quadro uguale a 0.6841813, il che denota una prevalenza di devianza "Tra".
+Si vede infatti come all'aumentare del valore di "OverallQual" la variabile "SalePrice" salga.
+Volendo comunque usare la correlazione lineare con questa variabile, vediamo che essa arriva a 0.7909816, ovvero è presente una forte correlazione tra le due variabili.
+
+
+#### Variabile `OverallCond`
+
+```{r}
+calcola_devianza(case$SalePrice, factor(case$OverallCond))
+ggplot(case, aes(x = factor(OverallCond), y = SalePrice, fill = factor(OverallCond))) + geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red") +  geom_hline(yintercept = mean(case$SalePrice), linetype = "dashed", color = "blue") + labs(x = "OverallCond")
+```
+
+Dalla Devianza vediamo che quella principale è quella di tipo "Entro", Eta Quadro è infatti basso a 0.1253901.
+Si vede che le medie dei gruppi sono tutte vicine a quella generale con i gruppi "5" e "6" quelli con i valori più estremi.
+
+
+#### Variabile `YearBuilt`
+
+```{r}
+cor(case$YearBuilt, case$SalePrice, use="complete.obs")
+model <- lm(SalePrice ~ YearBuilt, data = case)
+summary(model)
+ggplot(case, aes(x = YearBuilt, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Il coefficiente di correlazione in questo caso è uguale a 0.5228973, il che denota una discreta correlazione tra le due variabili. 
+R Quadro ha un valore di 0.2729 che mi indica una dispersione dei punti ampia intorno alla mia retta di regressione.
+
+
+#### Variabile `YearRemodAdd`
+
+```{r}
+calcolo_cov_cor(case$YearRemodAdd)
+model <- lm(SalePrice ~ YearRemodAdd, data = case)
+summary(model)
+ggplot(case, aes(x = YearRemodAdd, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Il coefficiente di correlazione lineare è circa 0.5, il che denota una buona correlazione tra le 2 variabili. Dal modello di regressione lineare osserviamo un valore di R^2 pari a circa 0.26 che mi indica una dispersione ampia dei valori intorno alla retta di regressione.
+
+
+#### Variabile `RoofStyle`
+
+```{r}
+case$RoofStyle <- factor(case$RoofStyle)
+calcola_devianza(case$SalePrice, case$RoofStyle)
+ggplot(case, aes(x = as.factor(RoofStyle), y = SalePrice)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Si nota che la devianza within ha un valore molto elevato, dovuta soprattuto alle classi Gabel e Hip che hanno dei valori outlier. 
+Le case con i prezzi più alti appartengono alle due classi sopracitate, ma la variabile RoofStyle comunque non sembra influenzare il prezzo delle case in quanto la media dei prezzi di ogni classe è comunque allineata.
+
+
+#### Variabile `RoofMatl`
+
+```{r}
+case$RoofMatl <- factor(case$RoofMatl, levels = c("Roll", "ClyTile", "CompShg", "Tar&Grv", "Metal", "Membran", "WdShake", "WdShngl"))
+calcola_devianza(case$SalePrice, case$RoofMatl)
+ggplot(case, aes(x = as.factor(RoofMatl), y = SalePrice)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot(case, aes(x = as.factor(RoofMatl), y = SalePrice)) + geom_violin() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Si nota che la devianza within ha un valore molto elevato, dovuta soprattuto alla classa CompShg che ha numerosi valori outlier. L'andamento dei prezzi medi delle case sembrano seguire l'ordine dei factor, tuttavia, come si evince dal grafico a violino, si hanno pochi dati per alcune classe di variabili. In particolare per Roll, ClyTile, Metal e Membran la variabile RoofMatl non sembra influenzare il prezzo delle case in quanto il valore di ETA^2 è comunque basso
+
+
+#### Variabile `Exterior1st`
+
+```{r}
+case$Exterior1st <- factor(case$Exterior1st)
+calcola_devianza(case$SalePrice, case$Exterior1st)
+ggplot(case, aes(x = as.factor(Exterior1st), y = SalePrice)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Le varianze within e between hanno valori elevati, e la ETA^2 ha un valore di circa 0.15. Di conseguenza c'è una bassa correlazione tra la variabile Exterior1st e il prezzo.
+
+
+#### Variabile `Exterior2nd`
+
+```{r}
+case$Exterior2nd <- factor(case$Exterior2nd)
+calcola_devianza(case$SalePrice, case$Exterior2nd)
+ggplot(case, aes(x = as.factor(Exterior2nd), y = SalePrice)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Le varianze within e between hanno valori elevati, e la ETA^2 ha un valore di circa 0.15 .
+Di conseguenza, c'è una bassa correlazione tra la variabile Exterior1st e il prezzo.
+
+
+#### Variabile `MasVnrType`
+
+```{r}
+case$MasVnrType <- factor(case$MasVnrType)
+calcola_devianza(case$SalePrice, case$MasVnrType)
+ggplot(case, aes(x = as.factor(MasVnrType), y = SalePrice)) + geom_boxplot() + stat_summary(fun = mean, geom = "point", shape = 18, size = 1, color = "red")
+ggplot(case, aes(x = as.factor(MasVnrType), y = SalePrice)) + geom_violin()
+``` 
+
+Il valore di ETA^2 è di circa 0.19 che mostra una leggera correlazione tra il prezzo e MasVnrType.
+In particolare, in media le case rifinite in Stone e in BrickFace hanno un prezzo più alto.
+
+
+#### Variabile `MasVnrArea`
+
+```{r}
+cor(case$MasVnrArea, case$SalePrice, use = "complete.obs")
+model <- lm(SalePrice ~ MasVnrArea, data = subset(case, MasVnrArea != 0), na.action = "na.omit")
+summary(model)
+ggplot(case, aes(x = MasVnrArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, MasVnrArea != 0), aes(x = MasVnrArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Si nota che la correlazione è di circa 0.48.
+La variabile MasVnrArea quindi  influenza debolmente il prezzo delle case, come si può vedere dal grafico.
+
+
+#### Variabile `ExterQual`
+
+```{r}
+case$ExterQual <- factor(case$ExterQual, levels = c("Fa","TA","Gd","Ex"))
+calcola_devianza(case$SalePrice, case$ExterQual)
+ggplot(case, aes(x = as.factor(ExterQual), y = SalePrice, fill = as.factor(ExterQual))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE)
+```
+
+La variabile ExterQual influenza fortemente il prezzo di una casa. Si può infatti notare che il rapporto tra la la devianza between e la devianza totale è di 0.48 .
+Come si vede anche dal grafico più la finitura esterna è di qualità e più il prezzo della casa sale.
+
+
+#### Variabile `ExterCond`
+
+```{r}
+case$ExterCond <- factor(case$ExterCond, levels = c("Po","Fa","TA","Gd","Ex"))
+calcola_devianza(case$SalePrice, case$ExterCond)
+ggplot(case, aes(x = as.factor(ExterCond), y = SalePrice, fill = as.factor(ExterCond))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5)  + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE)
+```
+
+La variabile ExterCond influenza debolmente il prezzo.
+Il valore di ETA^2 è di 0.02 infatti dal grafico si evince che le classi Average/typical e Good contengono numerosi valori outlier, con un prezzo più alto della media.
+
+
+#### Variabile `Foundation`
+
+```{r}
+case$Foundation <- factor(case$Foundation, levels = c("Slab","Stone","BrkTil","CBlock","Wood","PConc"))
+calcola_devianza(case$SalePrice, case$Foundation)
+ggplot(case, aes(x = as.factor(Foundation), y = SalePrice, fill = as.factor(Foundation))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+Il tipo di fondamenta influenza moderatamente il prezzo delle case.
+Infatti, le case con le fondamenta in Poured Contrete hanno in media il prezzo più alto e, anche in assoluto, le case con il prezzo più alto hanno le fondamenta in Poured Contrete.
+Tuttavia BrkTil e CBlock contengono alcuni valori outlier di conseguenza il valore di ETA^2 non è elevatissimo.
+
+
+#### Variabile `BsmtQual`
+
+```{r}
+case$BsmtQual <- factor(case$BsmtQual, levels = c("Fa","TA","Gd","Ex"))
+calcola_devianza(case$SalePrice, case$BsmtQual)
+ggplot(case, aes(x = as.factor(BsmtQual), y = SalePrice, fill = as.factor(BsmtQual))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+Si nota una forte correlazione tra la qualità del seminterrato e il prezzo delle case. 
+Il rapporto tra la devianza tra i gruppi e la Devianza Totale è vicina al 45% che è dimostrato dal grafico in cui si vede che la media dei prezzi delle case con la qualità del seminterrato Fair è la più bassa mentre la media dei prezzi delle case con la qualità del seminterrato Excellent è la più alta.
+
+
+#### Variabile `BsmtCond`
+
+```{r}
+case$BsmtCond <- factor(case$BsmtCond, levels = c("Po","Fa","TA","Gd"))
+calcola_devianza(case$SalePrice, case$BsmtCond)
+ggplot(case, aes(x = as.factor(BsmtCond), y = SalePrice, fill = as.factor(BsmtCond))) + geom_violin() + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+La correlazione tra la condizione del seminterrato e la variabile "SalePrice", a casusa di numerosi valori outlier presenti nella classe Average/Typical
+e per il fatto che la devianza within è molto elevata, è bassa.
+Infatti, la devianza between è molto minore rispetto alla devianza totale.
+
+
+#### Variabile `BsmtExposure`
+
+```{r}
+case$BsmtExposure <- factor(case$BsmtExposure, levels = c("No", "Mn", "Av", "Gd"))
+calcola_devianza(case$SalePrice, case$BsmtExposure)
+ggplot(case, aes(x = as.factor(BsmtExposure), y = SalePrice, fill = as.factor(BsmtExposure))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+L'influenza con la variabile BsmtExposure è bassa, infatti le medie dei vari gruppi sono piuttosto vicine tra loro.
+Tuttavia, in parte si osserva che le case con una buona esposizione hanno un prezzo medio leggermente maggiore rispetto alle altre.
+
+
+#### Variabile `BsmtFinType1`
+
+```{r}
+case$BsmtFinType1 <- factor(case$BsmtFinType1, levels = c("Unf", "LwQ", "Rec", "BLQ", "ALQ", "GLQ"))
+calcola_devianza(case$SalePrice, case$BsmtFinType1)
+ggplot(case, aes(x = as.factor(BsmtFinType1), y = SalePrice, fill = as.factor(BsmtFinType1))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+Dal grafico si nota che le medie e le mediane di ogni classe sono tutte sullo stesso livello.
+Questo indica un basso valore di varianza between, infatti il rapporto con la varianza totale è di 0.1925976   .
+Questo a sua volta indica una bassa influenza della variabile BsmtFinType1 sui prezzi delle case.
+
+
+#### Variabile `BsmtFinSF1`
+
+```{r}
+cor(case$BsmtFinSF1, case$SalePrice, use = "complete.obs")
+model <- lm(SalePrice ~ BsmtFinSF1, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtFinSF1, data = subset(case, BsmtFinSF1 != 0), na.action = "na.omit")
+summary(model)
+ggplot(case, aes(x = BsmtFinSF1, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm") + xlim(0,2500)
+ggplot(data = subset(case, BsmtFinSF1 != 0), aes(x = BsmtFinSF1, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm") + xlim(0,2500)
+```
+
+La correlazione delle due variabili è di 0.39 e come si nota dal grafico la il modello non ha una un'ottima accuratezza.
+La variabile BsmtFinSF1 quindi, non influenza pesantemente il prezzo delle case.
+
+
+#### Variabile `BsmtFinType2`
+
+```{r}
+case$BsmtFinType2 <- factor(case$BsmtFinType2, levels = c("Unf", "LwQ", "Rec", "BLQ", "ALQ", "GLQ"))
+calcola_devianza(case$SalePrice, case$BsmtFinType2)
+ggplot(case, aes(x = as.factor(BsmtFinType2), y = SalePrice, fill = as.factor(BsmtFinType2))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+Le due variabili non sono correlate infatti un grande numero di case, anche con prezzi elevati, hanno il seminterrato incompleto. 
+Questo si può notare anche dal valore di ETA^2 che è molto basso (0.009452351) dovuto alla codevianza between molto bassa.
+
+
+#### Variabile `BsmtFinSF2`
+
+```{r}
+cor(case$BsmtFinSF2, case$SalePrice, use = "complete.obs")
+model <- lm(SalePrice ~ BsmtFinSF2, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtFinSF2, data = subset(case, BsmtFinSF2 != 0), na.action = "na.omit")
+summary(model)
+ggplot(case, aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, BsmtFinSF2 != 0), aes(x = BsmtFinSF2, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Essendo questa variabile la superficie della finitura descritta alla variabile precedente, anche qui non c'è nessuna relazione tra le due variabili, il valore della correlazione è di -0.11% : molto prossima allo zero.
+
+
+#### Variabile `BsmtUnfSF`
+
+```{r}
+cor(case$BsmtUnfSF, case$SalePrice, use = "complete.obs")
+model <- lm(SalePrice ~ BsmtUnfSF, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ BsmtUnfSF, data = subset(case, BsmtUnfSF != 0), na.action = "na.omit")
+summary(model)
+ggplot(case, aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+ggplot(data = subset(case, BsmtUnfSF != 0), aes(x = BsmtUnfSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+
+Non si nota una forte correlazione tra la variabile Superficie di seminterrato incompleto e il prezzo dell'abitazione.
+La correlazione è del 0.21448 e il valore di R^2 è 0.045 .
+Anche escludendo tutti i valori che hanno superficie di seminterrato incompleto pari a zero si nota che il valore di R^2 rimane basso.
+
+
+#### Variabile `TotalBsmtSF`
+
+```{r}
+cor(case$TotalBsmtSF, case$SalePrice, use = "complete.obs")
+model <- lm(SalePrice ~ TotalBsmtSF, data = case, na.action = "na.omit")
+model <- lm(SalePrice ~ TotalBsmtSF, data = subset(case, TotalBsmtSF != 0), na.action = "na.omit")
+summary(model)
+ggplot(case, aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
+ggplot(data = subset(case, TotalBsmtSF != 0), aes(x = TotalBsmtSF, y = SalePrice), ) + geom_point() + geom_smooth(method = "lm", se = FALSE) + xlim(0,3500)
+```
+
+La dipendenza tra la variabile Superficie del seminterrato e la variabile prezzo è evidente.
+Il valore della correlazione è di 0.6135806 e dal grafico si nota come all'aumentare della superficie il valore del prezzo tende ad essere più alto.
+
+
+#### Variabile `Heating`
+
+```{r}
+case$Heating <- factor(case$Heating)
+calcola_devianza(case$SalePrice, case$Heating)
+ggplot(case, aes(x = as.factor(Heating), y = SalePrice, fill = as.factor(Heating))) + geom_violin() + geom_boxplot(width=0.3, alpha=1/5) + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+La variabile Heating ha una bassa influenza sulla variabile SalePrice. 
+La devianza between ha un valore piuttosto basso, infatti le medie dei vari gruppo sono all'incirca alla stessa altezza.
+Si nota poi la presenza di numerosi valori outlier nella categoria GasA.
+
+
+#### Variabile `HeatingQC`
+
+```{r}
+case$HeatingQC <- factor(case$HeatingQC, levels = c("Po","Fa","TA","Gd","Ex"))
+calcola_devianza(case$SalePrice, case$HeatingQC)
+ggplot(case, aes(x = as.factor(HeatingQC), y = SalePrice, fill = as.factor(HeatingQC))) + geom_violin() + geom_boxplot(width=0.4, alpha=1/5) + scale_fill_brewer(palette = "RdYlGn") + guides(fill = FALSE) + stat_summary(fun = mean, geom = "point", shape = 18, size = 2, color = "black")
+```
+
+La qualità dell'impianto di riscaldamento è una variabile che influenza il prezzo di vendita dell'abitazione. Si nota che la categoria Eccellente contiene le case con il prezzo più alto.
+
+#### Variabile `CentralAir`
+
+```{r}
+case$CentralAir <- factor(case$CentralAir)
+ggplot(case, aes(x = as.factor(x = CentralAir), y = SalePrice, fill = as.factor(x =CentralAir))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = case$CentralAir)
+```
+
+Il sistema di aria centralizzato non sembra avere una grande influenza sul prezzo, si osserva che le mediane fra i due gruppi sono simili. Si osserva inoltre una maggiore dispersione nelle case del gruppo yes.
+
+
+#### Variabile `Electrical`
+
+```{r}
+case$Electrical <- factor(case$Electrical)
+ggplot(case, aes(x = as.factor(x = Electrical), y = SalePrice, fill = as.factor(x = Electrical))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$Electrical))
+```
+
+Il tipo di sistema elettrico non sembra avere influenza sul prezzo, le mediane dei gruppi sono simili, il gruppo SBrkr cioè il sistema elettrico standard, ha la varianza maggiore, bisogna però notare che è il gruppo con il la maggiore numerosità.
+
+
+#### Variabile `X1stFlrSF`
+
+```{r}
+calcolo_cov_cor(case$X1stFlrSF)
+lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
+summary(lmodel)
+ggplot(data = case , aes(x=log(X1stFlrSF), y=log(SalePrice))) +
+  geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
+```
+
+abbiamo un coefficiente di correlazione lineare di circa 0.6, dal modello lineare osserviamo un valore di R^2 di circa 0.366.
+
+
+#### Variabile `X2ndFlrSF`
+
+```{r}
+calcolo_cov_cor(case$X2ndFlrSF)
+lmodel <- lm(data = case, formula = (X1stFlrSF~SalePrice))
+summary(lmodel)
+lmodel_case_con_2_piano <- lm(data = subset(case, X2ndFlrSF != 0), formula = (X2ndFlrSF~SalePrice))
+summary(lmodel_case_con_2_piano)
+
+ggplot(data = subset(case, X2ndFlrSF != 0) , aes(x=log(X2ndFlrSF), y=log(SalePrice))) +
+  geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
+```
+
+Osserviamo che vi è un discreto numero di case che non ha un secondo piano, plottando i punti vi è una concertazione di punti nell'ascissa 0. Facendo il modello di regressione lineare sia sul set completo che sul subset senza gli zeri si nota che in quest'ultimo il valore di R^2 aumenta quasi del 10%. 
+
+
+#### Variabile ` lowqualityfinsf`
+
+```{r}
+case$LowQualFinSF<- factor(replace(case$LowQualFinSF, (case$LowQualFinSF) > 0, "Non zero"))
+calcola_devianza(case$SalePrice, case$LowQualFinSF)
+ggplot(case, aes(x = LowQualFinSF, y = SalePrice, fill = as.factor(x = LowQualFinSF))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = F)
+
+```
+
+La maggior parte dei valori è 0, divido in due gruppi uno in cui il valore è diverso da zero e uno in cui è uguale. Dal grafico e dell'analisi della devianza si osserva che le mediane dei due gruppi sono molto vivine tra loro. IL coefficiente eta^2 è quasi zero.
+
+
+#### Variabile `GrLivArea`
+
+```{r}
+calcolo_cov_cor(case$GrLivArea)
+lmodel <- lm(data = case, formula = (GrLivArea~SalePrice))
+summary(lmodel)
+ggplot(data = case , aes(x=log(GrLivArea), y=log(SalePrice))) +
+  geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
+```
+
+R^2 vale 0.50 e il coefficiente di correlazione lineare 0.70 dunque vi è una forte correlazione lineare tra le variabili.
+
+
+#### Variabile `BsmtFullBath`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = BsmtFullBath), y = SalePrice, fill = as.factor(x = BsmtFullBath))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BsmtFullBath))
+```
+
+La variabile rappresenta i Basement full Bathrooms. La devianza tra i gruppi è bassa, il coefficiente eta^2 vale circa 0.053. Le mediane dei gruppi sono simili. Dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore.
+
+
+
+#### Variabile `BsmtHalfBath`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = BsmtHalfBath), y = SalePrice, fill = as.factor(x = BsmtHalfBath))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero half bath')
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BsmtHalfBath))
+```
+
+La variabile rappresenta i  Basement half Bathrooms. La devianza tra i gruppi è bassa, eta^2 è quasi 0. Le mediane dei gruppi sono simili. Dal grafico si nota che le case con 0 e 1 bagno hanno una varianza maggiore.
+
+
+#### Variabile `FullBath`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = FullBath), y = SalePrice, fill = as.factor(x = FullBath))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero full bath')
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$FullBath))
+```
+
+La variabile rappresenta i  Full bathrooms above grade. La devianza tra i gruppi è alta, eta^2 vale circa 0.34. Dal grafico si nota che il prezzo è influenzato dal numero di full bath above grade, anche la devianza entro i gruppi è alta. 
+
+
+#### Variabile `HalfBath`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = HalfBath), y = SalePrice, fill = as.factor(x = HalfBath))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE) + labs(x = 'numero half bath above grade')
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$HalfBath))
+```
+
+ 
+La variabile rappresenta gli half Bathrooms above grade. La devianza entro i gruppi è maggiore della devianza tra i gruppi, il coefficiente eta^2 è circa 0.0927. Le case nel gruppo 1 sono quelle che presentano una maggiore varianza.
+
+
+#### Variabile `BedroomAbvGr`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = BedroomAbvGr), y = SalePrice, fill = as.factor(x = BedroomAbvGr))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$BedroomAbvGr))
+```
+
+Le case con 4 camere da letto sono quelle che presentano la maggiore varianza. La devianza entro i gruppi è maggiore di quella tra i gruppi. il coefficienta eta^2 è circa 0.5866.
+
+#### Variabile `KitchenAbvGr`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = KitchenAbvGr), y = SalePrice, fill = as.factor(x = KitchenAbvGr))) + 
+  geom_boxplot() + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$KitchenAbvGr))
+```
+
+la devianza tra i gruppi è bassa, il coefficiente eta^2 vale circa 0.0199. La correlazione è bassa.
+
+
+#### Variabile `KitchenQual`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = KitchenQual), y = SalePrice, fill = as.factor(x = KitchenQual))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$KitchenQual))
+```
+
+Il coefficiente eta^2 vale circa 0.457 e dal grafico si nota una correlazione tra il prezzo della casa e la qualità della cucina. Notiamo una maggiore varianza nelle case che hanno una cucina eccellente.
+
+
+#### Variabile `TotRmsAbvGrd`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = TotRmsAbvGrd), y = SalePrice, fill = as.factor(x = TotRmsAbvGrd))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$TotRmsAbvGrd))
+```
+
+il coefficiente eta^2 vale 0.2991 graficamente osserviamo una chiara correlazione tra il numero delle stanza above grade e il prezzo.
+
+
+#### Variabile `Functional`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = Functional), y = SalePrice, fill = as.factor(x = Functional))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$Functional))
+```
+
+Il coefficiente eta^2 vale circa 0.165 e la devianza tra i gruppi e molto più bassa della devianza entro i gruppi. Non sembra esserci una correlazione tra l'appartenere ad un gruppo e il prezzo.
+
+#### Variabile `Fireplaces`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = Fireplaces), y = SalePrice, fill = as.factor(x = Fireplaces))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$Fireplaces))
+```
+
+Il coefficiente eta^2 vale 0.2322 la devianza entro i gruppi e la devianza tra i gruppi hhanno lo stesso ordine di grandezza 10^12, sembra esserci correlazione tra le variabili.
+
+
+#### Variabile `FireplaceQu`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = FireplaceQu), y = SalePrice, fill = as.factor(x = FireplaceQu))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$FireplaceQu))
+```
+
+Il coefficiente eta^2 è circa 0.113, e la devianza tra i gruppi è minore di quella entro i gruppi.
+
+
+#### Variabile `GarageType`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = GarageType), y = SalePrice, fill = as.factor(x = GarageType))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$GarageType))
+```
+
+Il coefficiente eta^2 è circa  0.2066, sembra esserci correlazione tra le due variabili. IL gruppo che presenta la maggiore varianza è il gruppo delle case con il garage di tipo Attached , si ricordi che questas il gruppo con la numerosità maggiore. 
+
+
+#### Variabile `GarageYrBlt`
+
+```{r}
+cor(case$GarageYrBlt, case$SalePrice, use="complete.obs")
+lmodel <- lm(data = case, formula = (GarageYrBlt~SalePrice))
+summary(lmodel)
+ggplot(data = case , aes(x=log(GarageYrBlt), y=log(SalePrice))) +
+  geom_point(shape=1) + geom_smooth(method = 'lm', se = F) 
+```
+
+il coefficiente di correlazione lineare vale 0.5, dal modello di regressione lineare osserviamo un valore di  R^2 pari a 0.23.
+
+
+#### Variabile `GarageFinish`
+
+```{r}
+ggplot(case, aes(x = as.factor(x = GarageFinish), y = SalePrice, fill = as.factor(x = GarageFinish))) + 
+  geom_violin() + geom_boxplot(width=0.2, alpha=1/5) + guides(fill = FALSE)
+calcola_devianza(numerical_var = case$SalePrice, categorical_var = as.factor(case$GarageFinish))
+
+```
+
+il valore di eta^2 è circa 0.3, sembra esserci correlazione tra le variabili. Nel gruppo di case che hanno il garage ultimato si riscontra lamaggiore varianza.
+
+#### Variabile 'GarageYrBlt'
+
+```{r}
+risultati_cov_cor_GarageYrBlt <- calcolo_cov_cor(case$GarageYrBlt)
+risultati_cov_cor_GarageYrBlt
+cat("Commento: La variabile GarageYrBlt ha una covarianza di", round(risultati_cov_cor_GarageYrBlt["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageYrBlt["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageYrBlt["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageYrBlt e SalePrice. Questo potrebbe suggerire che i garage costruiti più recentemente tendono ad essere associati a case con un prezzo di vendita più alto, forse perché indicano una manutenzione più recente e tecnologie più moderne.\n")
+
+ggplot(case, aes(x = GarageYrBlt, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("GarageYrBlt vs SalePrice")
+```
+
+#### Variabile 'GarageFinish'
+
+```{r}
+risultati_devianza_GarageFinish <- calcola_devianza(case$SalePrice, case$GarageFinish)
+print(risultati_devianza_GarageFinish)
+cat("Commento: La variabile GarageFinish ha una devianza totale di", round(risultati_devianza_GarageFinish$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageFinish$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageFinish$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageFinish$eta2, 4), "indicando che il", round(risultati_devianza_GarageFinish$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageFinish. Un garage finito (o meglio rifinito) potrebbe essere percepito come un segno di qualità e cura della proprietà, contribuendo quindi ad un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageFinish), y = SalePrice)) + geom_boxplot() + ggtitle("GarageFinish vs SalePrice")
+```
+
+#### Variabile 'GarageCars'
+
+```{r}
+risultati_cov_cor_GarageCars <- calcolo_cov_cor(case$GarageCars)
+print(risultati_cov_cor_GarageCars)
+cat("Commento: La variabile GarageCars ha una covarianza di", round(risultati_cov_cor_GarageCars["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageCars["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageCars["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageCars e SalePrice. Questo potrebbe suggerire che case con un maggior numero di garage tendono ad avere un prezzo di vendita più alto, forse perché indicano una maggiore capacità di parcheggio e spazio di stoccaggio.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageCars), y = SalePrice)) + geom_boxplot() + ggtitle("GarageCars vs SalePrice")
+```
+
+#### Variabile 'GarageArea'
+
+```{r}
+risultati_cov_cor_GarageArea <- calcolo_cov_cor(case$GarageArea)
+print(risultati_cov_cor_GarageArea)
+cat("Commento: La variabile GarageArea ha una covarianza di", round(risultati_cov_cor_GarageArea["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_GarageArea["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_GarageArea["cor"] > 0, "positiva", "negativa"), 
+    "tra GarageArea e SalePrice. Questo potrebbe suggerire che case con un'area garage più grande tendono ad avere un prezzo di vendita più alto, forse perché indicano una maggiore capacità di parcheggio e spazio di stoccaggio.\n")
+
+# Plot
+ggplot(case, aes(x = GarageArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("GarageArea vs SalePrice")
+```
+
+#### Variabile 'GarageQual'
+
+```{r}
+risultati_devianza_GarageQual <- calcola_devianza(case$SalePrice, case$GarageQual)
+print(risultati_devianza_GarageQual)
+cat("Commento: La variabile GarageQual ha una devianza totale di", round(risultati_devianza_GarageQual$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageQual$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageQual$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageQual$eta2, 4), "indicando che il", round(risultati_devianza_GarageQual$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageQual. Un garage di qualità superiore potrebbe essere percepito come un segno di qualità e cura della proprietà, contribuendo quindi ad un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageQual), y = SalePrice)) + geom_boxplot() + ggtitle("GarageQual vs SalePrice")
+```
+
+#### Variabile 'GarageCond'
+
+```{r}
+risultati_devianza_GarageCond <- calcola_devianza(case$SalePrice, case$GarageCond)
+print(risultati_devianza_GarageCond)
+cat("Commento: La variabile GarageCond ha una devianza totale di", round(risultati_devianza_GarageCond$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_GarageCond$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_GarageCond$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_GarageCond$eta2, 4), "indicando che il", round(risultati_devianza_GarageCond$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da GarageCond. Una buona condizione del garage è cruciale per la funzionalità e l'estetica della proprietà, influenzando positivamente il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(GarageCond), y = SalePrice)) + geom_boxplot() + ggtitle("GarageCond vs SalePrice")
+```
+
+#### Variabile 'PavedDrive'
+
+```{r}
+risultati_devianza_PavedDrive <- calcola_devianza(case$SalePrice, case$PavedDrive)
+print(risultati_devianza_PavedDrive)
+cat("Commento: La variabile PavedDrive ha una devianza totale di", round(risultati_devianza_PavedDrive$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_PavedDrive$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_PavedDrive$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_PavedDrive$eta2, 4), "indicando che il", round(risultati_devianza_PavedDrive$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da PavedDrive. Un vialetto pavimentato può migliorare l'aspetto estetico della casa e la comodità, influenzando così positivamente il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(PavedDrive), y = SalePrice)) + geom_boxplot() + ggtitle("PavedDrive vs SalePrice")
+```
+
+
+#### Variabile 'WoodDeckSF'
+
+```{r}
+risultati_cov_cor_WoodDeckSF <- calcolo_cov_cor(case$WoodDeckSF)
+print(risultati_cov_cor_WoodDeckSF)
+cat("Commento: La variabile WoodDeckSF ha una covarianza di", round(risultati_cov_cor_WoodDeckSF["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_WoodDeckSF["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_WoodDeckSF["cor"] > 0, "positiva", "negativa"), 
+    "tra WoodDeckSF e SalePrice. La presenza di un'ampia terrazza in legno può essere un fattore attrattivo per gli acquirenti, offrendo spazio all'aperto per il relax e l'intrattenimento, e quindi aumentando il valore della casa.\n")
+
+# Plot
+ggplot(case, aes(x = WoodDeckSF, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("WoodDeckSF vs SalePrice")
+```
+
+#### Variabile 'OpenPorchSF'
+
+```{r}
+risultati_cov_cor_OpenPorchSF <- calcolo_cov_cor(case$OpenPorchSF)
+print(risultati_cov_cor_OpenPorchSF)
+cat("Commento: La variabile OpenPorchSF ha una covarianza di", round(risultati_cov_cor_OpenPorchSF["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_OpenPorchSF["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_OpenPorchSF["cor"] > 0, "positiva", "negativa"), 
+    "tra OpenPorchSF e SalePrice. Gli spazi aperti come le verande possono migliorare la qualità della vita e l'attrattiva estetica della proprietà, contribuendo a un prezzo di vendita più alto.\n")
+
+# Plot
+ggplot(case, aes(x = OpenPorchSF, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("OpenPorchSF vs SalePrice")
+```
+
+
+#### Variabile 'EnclosedPorch'
+
+```{r}
+risultati_cov_cor_EnclosedPorch <- calcolo_cov_cor(case$EnclosedPorch)
+print(risultati_cov_cor_EnclosedPorch)
+cat("Commento: La variabile EnclosedPorch ha una covarianza di", round(risultati_cov_cor_EnclosedPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_EnclosedPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_EnclosedPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra EnclosedPorch e SalePrice. Una veranda chiusa può aggiungere spazio utilizzabile alla casa e offrire protezione dagli elementi atmosferici, rendendo la proprietà più preziosa.\n")
+
+# Plot
+ggplot(case, aes(x = EnclosedPorch, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("EnclosedPorch vs SalePrice")
+```
+
+#### Variabile 'X3SsnPorch'
+
+```{r}
+risultati_cov_cor_X3SsnPorch <- calcolo_cov_cor(case$`X3SsnPorch`)
+print(risultati_cov_cor_X3SsnPorch)
+cat("Commento: La variabile 3SsnPorch ha una covarianza di", round(risultati_cov_cor_X3SsnPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_X3SsnPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_X3SsnPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra 3SsnPorch e SalePrice. Una veranda a tre stagioni può essere vista come un valore aggiunto, offrendo un'area utilizzabile per gran parte dell'anno e aumentando così il valore della proprietà.\n")
+
+# Plot
+ggplot(case, aes(x = `X3SsnPorch`, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("3SsnPorch vs SalePrice")
+```
+
+#### Variabile 'ScreenPorch'
+
+```{r}
+risultati_cov_cor_ScreenPorch <- calcolo_cov_cor(case$ScreenPorch)
+print(risultati_cov_cor_ScreenPorch)
+cat("Commento: La variabile ScreenPorch ha una covarianza di", round(risultati_cov_cor_ScreenPorch["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_ScreenPorch["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_ScreenPorch["cor"] > 0, "positiva", "negativa"), 
+    "tra ScreenPorch e SalePrice. Una veranda schermata può fornire uno spazio esterno, migliorando la qualità della vita e il valore della casa.\n")
+
+# Plot
+ggplot(case, aes(x = ScreenPorch, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("ScreenPorch vs SalePrice")
+```
+
+#### Variabile 'PoolArea'
+
+```{r}
+risultati_cov_cor_PoolArea <- calcolo_cov_cor(case$PoolArea)
+print(risultati_cov_cor_PoolArea)
+cat("Commento: La variabile PoolArea ha una covarianza di", round(risultati_cov_cor_PoolArea["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_PoolArea["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_PoolArea["cor"] > 0, "positiva", "negativa"), 
+    "tra PoolArea e SalePrice. Una piscina può essere un lusso desiderabile in una proprietà, contribuendo significativamente al prezzo di vendita, anche se questo può variare a seconda della località.\n")
+
+# Plot
+ggplot(case, aes(x = PoolArea, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("PoolArea vs SalePrice")
+```
+
+#### Variabile 'MiscVal'
+
+```{r}
+risultati_cov_cor_MiscVal <- calcolo_cov_cor(case$MiscVal)
+print(risultati_cov_cor_MiscVal)
+cat("Commento: La variabile MiscVal ha una covarianza di", round(risultati_cov_cor_MiscVal["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_MiscVal["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_MiscVal["cor"] > 0, "positiva", "negativa"), 
+    "tra MiscVal e SalePrice. I valori vari possono rappresentare miglioramenti o caratteristiche aggiuntive della proprietà che non rientrano nelle categorie standard, influenzando così il prezzo di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = MiscVal, y = SalePrice)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + ggtitle("MiscVal vs SalePrice")
+```
+
+#### Variabile 'MoSold'
+
+```{r}
+risultati_cov_cor_MoSold <- calcolo_cov_cor(case$MoSold)
+print(risultati_cov_cor_MoSold)
+cat("Commento: La variabile MoSold ha una covarianza di", round(risultati_cov_cor_MoSold["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_MoSold["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_MoSold["cor"] > 0, "positiva", "negativa"), 
+    "tra MoSold e SalePrice. Il mese di vendita può influenzare il prezzo di vendita a causa della stagionalità del mercato immobiliare, con certi mesi che potrebbero avere una domanda più alta e quindi prezzi più alti.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(MoSold), y = SalePrice)) + geom_boxplot() + ggtitle("MoSold vs SalePrice")
+```
+
+#### Variabile 'YrSold'
+
+```{r}
+risultati_cov_cor_YrSold <- calcolo_cov_cor(case$YrSold)
+print(risultati_cov_cor_YrSold)
+cat("Commento: La variabile YrSold ha una covarianza di", round(risultati_cov_cor_YrSold["cov"], 2), 
+    "e una correlazione di", round(risultati_cov_cor_YrSold["cor"], 4), 
+    "con SalePrice. Questo indica una relazione", ifelse(risultati_cov_cor_YrSold["cor"] > 0, "positiva", "negativa"), 
+    "tra YrSold e SalePrice. L'anno di vendita può riflettere le condizioni economiche generali e le tendenze del mercato immobiliare, influenzando i prezzi di vendita.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(YrSold), y = SalePrice)) + geom_boxplot() + ggtitle("YrSold vs SalePrice")
+```
+
+#### Variabile 'SaleType'
+
+```{r}
+risultati_devianza_SaleType <- calcola_devianza(case$SalePrice, case$SaleType)
+print(risultati_devianza_SaleType)
+cat("Commento: La variabile SaleType ha una devianza totale di", round(risultati_devianza_SaleType$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_SaleType$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_SaleType$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_SaleType$eta2, 4), "indicando che il", round(risultati_devianza_SaleType$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da SaleType. Il tipo di vendita può influenzare il prezzo di vendita, con vendite all'asta o forzate che potrebbero portare a prezzi più bassi rispetto a vendite tradizionali.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(SaleType), y = SalePrice)) + geom_boxplot() + ggtitle("SaleType vs SalePrice")
+```
+
+#### Variabile 'SaleCondition'
+
+```{r}
+risultati_devianza_SaleCondition <- calcola_devianza(case$SalePrice, case$SaleCondition)
+print(risultati_devianza_SaleCondition)
+cat("Commento: La variabile SaleCondition ha una devianza totale di", round(risultati_devianza_SaleCondition$devianza_totale, 2), 
+    ", con una devianza tra gruppi di", round(risultati_devianza_SaleCondition$devianza_tra_gruppi, 2), 
+    "e una devianza entro gruppi di", round(risultati_devianza_SaleCondition$devianza_entro_gruppi, 2), 
+    ". Eta² è", round(risultati_devianza_SaleCondition$eta2, 4), "indicando che il", round(risultati_devianza_SaleCondition$eta2 * 100, 2), 
+    "% della varianza di SalePrice è spiegata da SaleCondition. La condizione di vendita può influenzare il prezzo di vendita, con vendite come le foreclosures che potrebbero portare a prezzi più bassi rispetto a vendite tradizionali.\n")
+
+# Plot
+ggplot(case, aes(x = as.factor(SaleCondition), y = SalePrice)) + geom_boxplot() + ggtitle("SaleCondition vs SalePrice")
+```
+
